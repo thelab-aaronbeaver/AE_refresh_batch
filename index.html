@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<!-- Core Libraries -->
+	<script src="js/libs/CSInterface.js"></script>
+
+	<!-- Configuration -->
+	<script src="js/config/config.js"></script>
+
+	<!-- Core Utilities -->
+	<script src="js/core/utils.js"></script>
+	<script src="js/core/errorHandler.js"></script>
+	<script src="js/core/keyboardManager.js"></script>
+	<script src="js/core/tooltipManager.js"></script>
+	<script src="js/core/buttonStateManager.js"></script>
+
+	<!-- Manager Modules -->
+	<script src="js/managers/folderManager.js"></script>
+	<script src="js/managers/dataManager.js"></script>
+	<script src="js/managers/renderManager.js"></script>
+	<script src="js/managers/uiManager.js"></script>
+	<script src="js/managers/textManager.js"></script>
+	<script src="js/managers/imageManager.js"></script>
+	<script src="js/managers/previewManager.js"></script>
+
+	<!-- Main Entry Point -->
+	<script src="js/main.js"></script>
+	<script src="js/bootstrap.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/app.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.min.css">
+	<script src="https://kit.fontawesome.com/11a09ce743.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="css/styles.css" />
+
+	<title>Refresh Batch</title>
+
+
+</head>
+
+<body scroll="no">
+	<header class="header">
+		<div class="header-left">
+			<div class="header-logo">
+				<li class="fa fa-sun"></li>
+			</div>
+			<div class="header-title">
+				<p>reFresh Batch</p>
+			</div>
+		</div>
+		<div class="header-right">
+			<li onclick="window.location.reload();" class="icon fa fa-refresh"></li>
+			<li onclick="closepanel()" class="icon fa fa-window-close"></li>
+		</div>
+	</header>
+
+	<div class="panel">
+		<button onclick="createFolder()" class="buttonyellow"
+			data-tooltip="Create folder structure and compositions">Fresh Batch Setup</button>
+		<button onclick="dataSetupShowHide()" class="buttonyellow" data-tooltip="Show/hide data import options">Data
+			Setup</button>
+	</div>
+	<div class="panel-container" id="importPanel" hidden>
+		<div class="element">
+			<h4>Data Import Options</h4>
+			<div class="import-buttons">
+				<button onclick="importDataFileJS()" class="buttonyellow button-adj import-btn" title="Import from CSV file">
+					<li class="icon fa-solid fa-file-csv"></li>
+					<span class="import-btn-label">CSV</span>
+				</button>
+				<button onclick="importDataFile()" class="buttonyellow button-adj import-btn" title="Import from Google Sheet">
+					<li class="icon fa-brands fa-google-drive"></li>
+					<span class="import-btn-label">Drive</span>
+				</button>
+				<button onclick="importJsonUrlJS()" class="buttonyellow button-adj import-btn" title="Load JSON data from URL">
+					<li class="icon fa-solid fa-link"></li>
+					<span class="import-btn-label">URL</span>
+				</button>
+			</div>
+		</div>
+		<div class="panel" id="jsonUrlSection">
+			<p>JSON Data URL</p>
+			<div class="data-row">
+				<input type="text" id="jsonUrlInput" class="inputWide" name="json-url"
+					placeholder="https://example.com/data.json">
+			</div>
+			<p class="keyboard-hint">Supports array-of-objects or array-of-arrays JSON. Data is previewed before use.</p>
+		</div>
+	</div>
+	<div class="panel" id="gDriveSetupPanel" hidden>
+		<p>Data Fields </p>
+		<div class="data-row">
+			<p>Sheet ID:</p>
+			<input type="text" id="sheetId" class="inputWide" name="sheet-id" placeholder="Enter Google Sheet ID">
+		</div>
+		<div class="data-row">
+			<p>Sheet Name:</p>
+			<input type="text" id="sheetName" class="inputWide" name="sheet-name"
+				placeholder="Enter Sheet Name (e.g., Sheet1)">
+		</div>
+		<button onclick="importsheetdata()" class="buttonyellow">Import gSheet Data</button>
+	</div>
+	<div class="panel-container panel-setup">
+		<h4 class="panel-row-element">Data Row:</h4>
+		<div class="panel-row">
+			<input type="text" id="data-row-value" class="data-row-value" value="0" inputmode="numeric" pattern="[0-9]*" title="Type row number (0-based) and press Enter"
+				onkeydown="if (event.key === 'Enter') applyDataRowFromInput();" onblur="applyDataRowFromInput();">
+			<div onclick="incrementSelectorJS()" class="icon buttonblue button-adj"
+				data-tooltip="Next row (Arrow Down)">
+				<li class="fa-solid  fa-plus"></li>
+			</div>
+			<div onclick="decrementSelectorJS()" class="icon buttonblue button-adj"
+				data-tooltip="Previous row (Arrow Up)">
+				<li class="fa-solid fa-minus"></li>
+			</div>
+		</div>
+	</div>
+	<div class="panel" id="dataFieldPanel">
+		<div class="panel-row data-field-options-header">
+			<label class="panel-row-element">Data fields (from 02_Data):</label>
+			<div class="icon" title="Refresh from 02_Data comp">
+				<li onclick="populateDataFieldDropdown()" class="fa fa-refresh"></li>
+			</div>
+		</div>
+		<div id="dataFieldQuickAdd" class="data-field-quick-add" title="Click to add this field as text to the active comp (the comp you have selected or open)"></div>
+	</div>
+	<div class="panel" id="imageReplacePanelContainer">
+		<div class="panel-row image-replace-header">
+			<label class="panel-row-element">Image Replace: map each image to a 00_Template layer (Source Text = path or URL)</label>
+			<button type="button" onclick="addReplaceImageOption()" class="buttonblue button-adj">ADD GFX</button>
+		</div>
+		<div id="imageReplaceMappingList" class="image-replace-mapping-list" title="Each slot uses the Source Text of the selected 00_Template layer as path or URL"></div>
+		<div id="notFoundImagePath" class="image-replace-fallback-path" title="Fallback image when a mapped file is missing"></div>
+	</div>
+
+	<div class="panel-container export-options-panel">
+		<h4 class="panel-row-element">Export options</h4>
+		<div class="panel-row">
+			<label class="panel-row-element">Preset:</label>
+			<select id="exportPresetSelect" class="export-select">
+				<option value="">None (use below)</option>
+			</select>
+			<button type="button" onclick="saveExportPresetJS()" class="buttonblue button-adj" title="Save current output + folder as preset">Save preset</button>
+		</div>
+		<div class="panel-row">
+			<label class="panel-row-element">Output:</label>
+			<select id="outputModuleSelect" class="export-select">
+				<option value="QT +">QT +</option>
+			</select>
+			<button type="button" onclick="refreshOutputModulesJS()" class="buttonblue button-adj" title="Refresh list (after adding templates in AE)"><i class="fa fa-refresh"></i></button>
+		</div>
+		<div class="panel-row export-folder-row">
+			<label class="panel-row-element">Folder:</label>
+			<input type="text" id="exportFolderPath" class="inputWide export-folder-input" readonly placeholder="Default: project folder / Exports" title="Click Choose to set" />
+			<button type="button" onclick="chooseExportFolderJS()" class="buttonblue button-adj" title="Choose export folder">Choose</button>
+		</div>
+	</div>
+	<div class="panel-container">
+		<div class="panel-row">
+			<button onclick="renderCurrentRowJS()" class="buttonyellow button-adj button-primary" title="Render only the current data row">Render current row</button>
+			<button onclick="addtoRenderQueueJS()" class="buttonblue button-adj">Render</button>
+			<button onclick="batchRenderQueueJS()" class="buttonyellow button-adj button-primary" title="Render all data rows">Batch Render</button>
+		</div>
+	</div>
+	</div>
+	<div class="panel-container">
+		<table id="dataTable" class="custom-table">
+			<thead>
+				<tr>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Table rows will be dynamically populated -->
+			</tbody>
+		</table>
+	</div>
+	<div class="panel-container status-area">
+		<h4 class="status-area-title">Status</h4>
+		<div id="mySheetResults" class="data-preview-results"></div>
+		<div id="loadingIndicator" class="loading-indicator" hidden>
+			<div class="spinner"></div>
+			<span>Processing...</span>
+		</div>
+	</div>
+	<div class="panel-container">
+		<div id="myError" class="error-container"></div>
+	</div>
+
+	<!-- Data Preview Modal: click overlay or X or Cancel or press Escape to close -->
+	<div id="dataPreviewModal" class="modal" hidden aria-hidden="true"
+		onclick="if (event.target === this) closeDataPreview();">
+		<div class="modal-content" onclick="event.stopPropagation();">
+			<div class="modal-header">
+				<h3>Data Preview</h3>
+				<button type="button" class="modal-close" onclick="closeDataPreview()" title="Close (Esc)" aria-label="Close">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div id="dataPreviewStats" class="data-stats"></div>
+				<div class="data-preview-table-container">
+					<table id="dataPreviewTable" class="data-preview-table">
+						<thead id="dataPreviewHeader"></thead>
+						<tbody id="dataPreviewBody"></tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button onclick="closeDataPreview()" class="buttonblue">Cancel</button>
+				<button onclick="confirmDataImport()" class="buttonyellow">Import Data</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Data Statistics Panel -->
+	<div id="dataStatsPanel" class="panel-container data-stats-panel" hidden>
+		<h4>Data Statistics</h4>
+		<div id="dataStatsContent" class="data-stats-content"></div>
+	</div>
+
+	</div>
+
+	<!-- Tooltip container -->
+	<div id="tooltip" class="tooltip" hidden></div>
+
+</body>
+
+</html>
