@@ -194,9 +194,9 @@ const UIManager = {
 					quickAddEl.appendChild(btn);
 				});
 			}
-			// Keep export filename "label column" dropdown in sync
-			if (typeof RenderManager !== "undefined" && RenderManager.setExportLabelColumnOptions) {
-				RenderManager.setExportLabelColumnOptions(options);
+			// Refresh export filename label dropdown from 00_Template text layers
+			if (typeof RenderManager !== "undefined" && RenderManager.populateExportLabelColumnDropdown) {
+				RenderManager.populateExportLabelColumnDropdown();
 			}
 		});
 	},
@@ -298,7 +298,7 @@ const UIManager = {
 					}
 				} catch (e) {}
 				if (fallbackPath) {
-					el.textContent = "Fallback: " + fallbackPath;
+					el.textContent = fallbackPath.length > 52 ? "Fallback: …" + fallbackPath.slice(-44) : "Fallback: " + fallbackPath;
 					el.title = fallbackPath;
 				} else {
 					el.textContent = "Fallback: img/notFound.jpg";

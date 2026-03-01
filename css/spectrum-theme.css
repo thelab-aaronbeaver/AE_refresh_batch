@@ -1,0 +1,328 @@
+/**
+ * Spectrum-inspired theme for reFresh Batch (CEP panel)
+ * Uses Adobe Spectrum design tokens for a consistent Adobe UI look.
+ * Reference: https://opensource.adobe.com/spectrum-css/
+ */
+
+/* Spectrum design tokens (light theme) */
+.spectrum {
+	--spectrum-gray-50: #f5f5f5;
+	--spectrum-gray-75: #e8e8e8;
+	--spectrum-gray-100: #e0e0e0;
+	--spectrum-gray-200: #d3d3d3;
+	--spectrum-gray-300: #c4c4c4;
+	--spectrum-gray-400: #a5a5a5;
+	--spectrum-gray-500: #8e8e8e;
+	--spectrum-gray-600: #6e6e6e;
+	--spectrum-gray-700: #4b4b4b;
+	--spectrum-gray-800: #323232;
+	--spectrum-gray-900: #2c2c2c;
+	--spectrum-blue-600: #2680eb;
+	--spectrum-blue-700: #1473e6;
+	--spectrum-blue-800: #0d66d0;
+	--spectrum-red-600: #e34850;
+	--spectrum-red-700: #d7373f;
+	--spectrum-green-600: #268e6c;
+	--spectrum-focus-ring: 2px solid var(--spectrum-blue-600);
+	--spectrum-radius: 4px;
+	--spectrum-radius-lg: 6px;
+}
+
+/* Base: light background, dark text */
+.spectrum.spectrum--light body {
+	background-color: var(--spectrum-gray-75) !important;
+	color: var(--spectrum-gray-900) !important;
+}
+
+/* Header: Spectrum toolbar style */
+.spectrum.spectrum--light .header {
+	background-color: #ffffff !important;
+	border-bottom: 1px solid var(--spectrum-gray-200) !important;
+	color: var(--spectrum-gray-800) !important;
+	height: 40px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.spectrum.spectrum--light .header-title p {
+	color: var(--spectrum-gray-800) !important;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.spectrum.spectrum--light .header-logo .fa-sun {
+	color: var(--spectrum-blue-600) !important;
+}
+
+.spectrum.spectrum--light .header-right .icon {
+	color: var(--spectrum-gray-600) !important;
+}
+
+.spectrum.spectrum--light .header-right .icon:hover {
+	color: var(--spectrum-gray-800) !important;
+}
+
+/* Top action strip (Fresh Batch Setup, Data Setup) */
+.spectrum.spectrum--light .panel:first-of-type {
+	background: #ffffff !important;
+	border-bottom: 1px solid var(--spectrum-gray-200) !important;
+	padding: 12px 16px !important;
+	gap: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	
+}
+
+/* Primary / CTA buttons (yellow -> Spectrum blue CTA) */
+.spectrum.spectrum--light .buttonyellow {
+	background-color: var(--spectrum-blue-600) !important;
+	border: 1px solid var(--spectrum-blue-600) !important;
+	color: #ffffff !important;
+	border-radius: var(--spectrum-radius) !important;
+	font-weight: 600;
+	font-size: 14px;
+	padding: 8px 16px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	margin: 8px 10px;
+}
+
+.spectrum.spectrum--light .buttonyellow:hover {
+	background-color: var(--spectrum-blue-700) !important;
+	border-color: var(--spectrum-blue-700) !important;
+	color: #ffffff !important;
+	box-shadow: 0 2px 4px rgba(38, 128, 235, 0.3);
+}
+
+.spectrum.spectrum--light .buttonyellow:active {
+	background-color: var(--spectrum-blue-800) !important;
+	border-color: var(--spectrum-blue-800) !important;
+	box-shadow: none;
+}
+
+.spectrum.spectrum--light .buttonyellow:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--spectrum-blue-600);
+}
+
+/* Secondary buttons (blue -> Spectrum outline style) */
+.spectrum.spectrum--light .buttonblue {
+	background-color: transparent !important;
+	border: 1px solid var(--spectrum-gray-300) !important;
+	color: var(--spectrum-gray-800) !important;
+	border-radius: var(--spectrum-radius) !important;
+	font-size: 14px;
+	padding: 8px 14px;
+	margin: 8px 10px;
+}
+
+.spectrum.spectrum--light .buttonblue:hover {
+	background-color: var(--spectrum-gray-75) !important;
+	border-color: var(--spectrum-gray-400) !important;
+	color: var(--spectrum-gray-900) !important;
+}
+
+.spectrum.spectrum--light .buttonblue:active {
+	background-color: var(--spectrum-gray-100) !important;
+}
+
+.spectrum.spectrum--light .buttonblue:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--spectrum-blue-600);
+}
+
+/* Panel sections (Data Row, Data fields, Export options, etc.) */
+.spectrum.spectrum--light .panel-container {
+	background-color: #ffffff !important;
+	border: 1px solid var(--spectrum-gray-200) !important;
+	border-radius: var(--spectrum-radius-lg) !important;
+	margin: 6px 10px;
+	padding: 10px 12px !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.spectrum.spectrum--light .panel:not(:first-of-type) {
+	background: #ffffff !important;
+	border: 1px solid var(--spectrum-gray-200) !important;
+	border-radius: var(--spectrum-radius-lg) !important;
+	color: var(--spectrum-gray-800) !important;
+	padding: 14px 16px !important;
+	margin: 8px 10px;
+}
+
+.spectrum.spectrum--light h4,
+.spectrum.spectrum--light .panel-row-element,
+.spectrum.spectrum--light label {
+	color: var(--spectrum-gray-800) !important;
+	font-size: 13px;
+	font-weight: 600;
+}
+.spectrum.spectrum--light .section-title {
+	font-size: 11px !important;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--spectrum-gray-600) !important;
+	margin: 0 0 6px 0;
+}
+
+.spectrum.spectrum--light .element h4 {
+	margin: 0 0 10px 0;
+	font-size: 14px;
+}
+
+/* Text inputs – Spectrum textfield look */
+.spectrum.spectrum--light input[type="text"],
+.spectrum.spectrum--light .inputWide,
+.spectrum.spectrum--light .data-row-value,
+.spectrum.spectrum--light .export-folder-input {
+	background-color: #ffffff !important;
+	border: 1px solid var(--spectrum-gray-300) !important;
+	color: var(--spectrum-gray-900) !important;
+	border-radius: var(--spectrum-radius) !important;
+	padding: 6px 10px !important;
+	font-size: 14px;
+}
+
+.spectrum.spectrum--light .export-filename-preview {
+	background-color: var(--spectrum-gray-75) !important;
+	color: var(--spectrum-gray-900) !important;
+	font-size: 11px;
+	padding: 5px 8px;
+}
+
+.spectrum.spectrum--light input[type="text"]:hover,
+.spectrum.spectrum--light .inputWide:hover {
+	border-color: var(--spectrum-gray-400) !important;
+}
+
+.spectrum.spectrum--light input[type="text"]:focus,
+.spectrum.spectrum--light .inputWide:focus {
+	outline: none !important;
+	border-color: var(--spectrum-blue-600) !important;
+	box-shadow: 0 0 0 1px var(--spectrum-blue-600);
+}
+
+/* Selects – Spectrum dropdown look */
+.spectrum.spectrum--light select,
+.spectrum.spectrum--light .export-select {
+	background-color: #ffffff !important;
+	border: 1px solid var(--spectrum-gray-300) !important;
+	color: var(--spectrum-gray-900) !important;
+	border-radius: var(--spectrum-radius) !important;
+	padding: 6px 10px !important;
+	font-size: 14px;
+}
+
+.spectrum.spectrum--light select:hover,
+.spectrum.spectrum--light select:focus {
+	border-color: var(--spectrum-gray-400) !important;
+}
+
+.spectrum.spectrum--light select:focus {
+	outline: none;
+	box-shadow: 0 0 0 1px var(--spectrum-blue-600);
+}
+
+/* Import buttons area */
+.spectrum.spectrum--light #importPanel .element {
+	background: transparent;
+}
+
+.spectrum.spectrum--light #jsonUrlSection {
+	background: var(--spectrum-gray-50) !important;
+	border-radius: var(--spectrum-radius) !important;
+	margin-top: 10px;
+}
+
+.spectrum.spectrum--light .keyboard-hint {
+	color: var(--spectrum-gray-600) !important;
+	font-size: 12px;
+	margin-top: 6px;
+}
+
+/* Status area */
+.spectrum.spectrum--light #mySheetResults.is-status:not(:empty) {
+	background-color: rgba(38, 128, 235, 0.08) !important;
+	border-left: 3px solid var(--spectrum-blue-600) !important;
+}
+
+.spectrum.spectrum--light .status-area-title {
+	color: var(--spectrum-gray-600) !important;
+}
+
+/* Error container */
+.spectrum.spectrum--light .error-container:not(:empty) {
+	background-color: rgba(227, 72, 80, 0.08) !important;
+	border-left: 4px solid var(--spectrum-red-600) !important;
+}
+
+.spectrum.spectrum--light .error-container strong {
+	color: var(--spectrum-red-700) !important;
+}
+
+/* Loading spinner */
+.spectrum.spectrum--light .loading-indicator {
+	color: var(--spectrum-blue-600) !important;
+}
+
+.spectrum.spectrum--light .spinner {
+	border-color: var(--spectrum-gray-200) !important;
+	border-top-color: var(--spectrum-blue-600) !important;
+}
+
+/* Modal */
+.spectrum.spectrum--light .modal-content {
+	background: #ffffff !important;
+	border: 1px solid var(--spectrum-gray-200) !important;
+	border-radius: var(--spectrum-radius-lg) !important;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.spectrum.spectrum--light .modal-header {
+	border-bottom: 1px solid var(--spectrum-gray-200) !important;
+}
+
+.spectrum.spectrum--light .modal-close {
+	color: var(--spectrum-gray-600) !important;
+}
+
+.spectrum.spectrum--light .modal-close:hover {
+	color: var(--spectrum-gray-800) !important;
+}
+
+/* Data preview table */
+.spectrum.spectrum--light .data-preview-results .preview-table th {
+	background: var(--spectrum-gray-100) !important;
+	color: var(--spectrum-gray-800) !important;
+}
+
+.spectrum.spectrum--light .data-preview-results .preview-summary {
+	color: var(--spectrum-gray-800) !important;
+}
+
+/* Quick-add and image replace chips/buttons */
+.spectrum.spectrum--light .button-quick-add {
+	background-color: var(--spectrum-gray-100) !important;
+	border: 1px solid var(--spectrum-gray-300) !important;
+	color: var(--spectrum-gray-800) !important;
+	border-radius: var(--spectrum-radius) !important;
+}
+
+.spectrum.spectrum--light .button-quick-add:hover {
+	background-color: var(--spectrum-gray-200) !important;
+}
+
+.spectrum.spectrum--light .custom-table thead th {
+	background: var(--spectrum-gray-100) !important;
+	color: var(--spectrum-gray-800) !important;
+}
+
+/* Icon buttons (plus/minus, refresh) – subtle */
+.spectrum.spectrum--light .icon.buttonblue .fa,
+.spectrum.spectrum--light .icon .fa-refresh {
+	color: var(--spectrum-gray-700) !important;
+}
+
+.spectrum.spectrum--light .icon.buttonblue:hover .fa,
+.spectrum.spectrum--light .icon:hover .fa-refresh {
+	color: var(--spectrum-blue-600) !important;
+}

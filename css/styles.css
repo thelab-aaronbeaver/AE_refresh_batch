@@ -349,8 +349,66 @@ li:hover {
 }
 
 .panel-row-element {
-	padding: 0 10px 0 0;
+	padding: 0 8px 0 0;
+}
 
+/* Compact panels and section titles */
+.panel-container {
+	padding: 8px 12px;
+	margin-bottom: 6px;
+}
+.section-title {
+	margin: 0 0 6px 0;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #555;
+}
+.panel-data-section .data-section-header {
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 6px;
+}
+.panel-data-section .data-section-header .data-row-value {
+	width: 2.8em;
+	padding: 4px 2px;
+}
+.data-fields-label {
+	font-size: 12px;
+	color: #555;
+	margin-left: 12px;
+}
+.icon-refresh-small {
+	cursor: pointer;
+	opacity: 0.85;
+}
+.icon-refresh-small:hover {
+	opacity: 1;
+}
+.panel-data-section .data-field-quick-add {
+	margin-top: 4px;
+	gap: 5px;
+}
+.image-replace-header {
+	margin-bottom: 6px;
+}
+.image-replace-header .panel-row-element {
+	flex: 1;
+	min-width: 0;
+}
+.btn-add-gfx {
+	font-size: 12px;
+}
+.export-options-panel .export-row {
+	margin-bottom: 4px;
+}
+.export-options-panel .export-row:last-of-type {
+	margin-bottom: 0;
+}
+.panel-render-buttons {
+	padding-top: 6px;
+	margin-bottom: 8px;
 }
 
 
@@ -464,13 +522,25 @@ li:hover {
 	min-width: 120px;
 }
 
-.export-preview-row .export-preview-input {
-	flex: 1;
-	min-width: 140px;
+.export-preview-row {
+	width: 100%;
+}
+
+.export-filename-preview {
+	flex-basis: 100%;
+	width: 100%;
+	max-width: 100%;
+	margin: 0;
+	padding: 5px 8px;
 	background: #f8f8f8;
 	color: #333;
 	font-family: monospace;
-	font-size: 12px;
+	font-size: 11px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	box-sizing: border-box;
+	border-radius: 3px;
 }
 
 /* Status / message area (success text in mySheetResults) */
@@ -523,20 +593,25 @@ li:hover {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 8px;
+	margin-bottom: 6px;
 }
-
 .data-field-options-header .panel-row-element {
 	margin: 0;
 }
 
 /* Image Replace: mapping row and current-value preview */
+.image-replace-mapping-list {
+	margin-bottom: 2px;
+}
 .image-replace-mapping-row {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 8px;
-	margin-bottom: 6px;
+	gap: 6px;
+	margin-bottom: 4px;
+}
+.image-replace-mapping-row:last-child {
+	margin-bottom: 0;
 }
 .image-replace-mapping-row .image-replace-slot-label {
 	min-width: 100px;
@@ -547,13 +622,13 @@ li:hover {
 	min-width: 100px;
 }
 .image-replace-preview {
-	font-size: 11px;
-	color: #b0c4de;
+	font-size: 10px;
+	color: #8a9fb5;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	max-width: 100%;
-	margin-top: 2px;
+	margin-top: 1px;
 	width: 100%;
 }
 .image-replace-mapping-row .image-replace-preview {
@@ -569,8 +644,9 @@ li:hover {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	margin-top: 6px;
-	padding-left: 0.25em;
+	margin-top: 4px;
+	padding: 2px 0;
+	max-width: 100%;
 }
 
 /* Data table: field names in header wrap like chips */

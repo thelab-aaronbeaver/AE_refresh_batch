@@ -147,12 +147,10 @@ const RenderManager = {
         const settings = this.getExportSettings();
         const template = settings.template || "QT +";
         const folder = settings.folder || "";
-        const labelSourceEl = document.getElementById(Config.ui.exportLabelSource);
         const columnEl = document.getElementById(Config.ui.exportLabelColumn);
-        const labelSource = (labelSourceEl && labelSourceEl.value === "column") ? "column" : "template";
-        const columnName = (columnEl && columnEl.value) ? columnEl.value : "";
+        const layerName = (columnEl && columnEl.value) ? columnEl.value : "";
         const csInterface = createCSInterface();
-        const setScript = "setExportOptions('" + this.escSingle(template) + "','" + this.escSingle(folder) + "','" + this.escSingle(labelSource) + "','" + this.escSingle(columnName) + "')";
+        const setScript = "setExportOptions('" + this.escSingle(template) + "','" + this.escSingle(folder) + "','" + this.escSingle(layerName) + "')";
         csInterface.evalScript(setScript, function () {
             csInterface.evalScript("addtoRenderQueue(" + (batchRender ? "true" : "false") + ")", function (result) {
                 if (typeof callback === "function") callback(result);
@@ -161,7 +159,7 @@ const RenderManager = {
     },
 
     /**
-     * Set the "Filename label" column dropdown options from an array (e.g. from dataFieldDropdown callback).
+     * Set the "Filename label" dropdown options from an array (00_Template text layer names).
      */
     setExportLabelColumnOptions: function (options) {
         const columnEl = document.getElementById(Config.ui.exportLabelColumn);
@@ -184,12 +182,12 @@ const RenderManager = {
     },
 
     /**
-     * Populate the "Filename label" column dropdown from 02_Data headers (same as data fields).
+     * Populate the "Filename label" dropdown from 00_Template text layer names.
      */
     populateExportLabelColumnDropdown: function () {
         const self = this;
         const csInterface = createCSInterface();
-        csInterface.evalScript("dataFieldDropdown()", function (results) {
+        csInterface.evalScript("getTemplateLayerNamesJSX()", function (results) {
             if (!results || typeof results !== "string") return;
             const options = results.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
             self.setExportLabelColumnOptions(options);
@@ -202,17 +200,22 @@ const RenderManager = {
     refreshExportFilenamePreview: function () {
         const previewEl = document.getElementById(Config.ui.exportFilenamePreview);
         const rowEl = document.getElementById(Config.ui.dataRowValue);
-        const labelSourceEl = document.getElementById(Config.ui.exportLabelSource);
         const columnEl = document.getElementById(Config.ui.exportLabelColumn);
         if (!previewEl) return;
         const rowStr = (rowEl && rowEl.value != null) ? String(rowEl.value).trim() : "0";
         const row = Math.max(0, Math.floor(parseInt(rowStr, 10) || 0));
-        const labelSource = (labelSourceEl && labelSourceEl.value === "column") ? "column" : "template";
-        const columnName = (columnEl && columnEl.value) ? columnEl.value : "";
+        const layerName = (columnEl && columnEl.value) ? columnEl.value : "";
         const csInterface = createCSInterface();
-        const script = "getExportFilenamePreview(" + row + ",'" + this.escSingle(labelSource) + "','" + this.escSingle(columnName) + "')";
+        const script = "getExportFilenamePreview(" + row + ",'" + this.escSingle(layerName) + "')";
         csInterface.evalScript(script, function (result) {
-            if (previewEl) previewEl.value = (result != null && result !== "") ? String(result) : "—";
+            if (!previewEl) return;
+            var full = (result != null && result !== "") ? String(result) : "—";
+            previewEl.title = full;
+            if (full.length > 48) {
+                previewEl.textContent = full.substring(0, 22) + "…" + full.substring(full.length - 22);
+            } else {
+                previewEl.textContent = full;
+            }
         });
     },
 
