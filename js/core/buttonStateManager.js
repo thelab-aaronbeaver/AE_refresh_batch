@@ -42,7 +42,7 @@ const ButtonStateManager = {
         const actionButtons = [
             'createFolder',
             'importDataFileJS',
-            'importsheetdata',
+            'importJsonUrlJS',
             'incrementSelectorJS',
             'decrementSelectorJS',
             'addTextJS',

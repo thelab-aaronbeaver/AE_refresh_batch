@@ -39,13 +39,6 @@ function dataSetupShowHide() {
 }
 
 /**
- * Show/hide Google Drive setup panel
- */
-function gDriveSetupShowHide() {
-	UIManager.toggleGDriveSetup();
-}
-
-/**
  * Increment data row selector
  */
 function incrementSelectorJS() {
@@ -103,15 +96,6 @@ function importJsonUrlJS() {
 	if (typeof DataManager !== "undefined" && DataManager.importJsonFromUrl) {
 		DataManager.importJsonFromUrl(url);
 	}
-}
-
-/**
- * Import Google Sheet data
- */
-function importsheetdata() {
-	const sheetId = document.getElementById(Config.ui.sheetId).value.trim();
-	const sheetName = document.getElementById(Config.ui.sheetName).value.trim();
-	DataManager.importGoogleSheet(sheetId, sheetName);
 }
 
 /**

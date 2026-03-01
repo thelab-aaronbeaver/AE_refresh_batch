@@ -1,6 +1,6 @@
 /**
  * Data Manager Module
- * Handles all data import/export operations (CSV, Google Sheets)
+ * Handles all data import/export operations (CSV, JSON URL)
  */
 
 const JSON_URL_STORAGE_KEY_PREFIX = "refresh_json_url_";
@@ -186,60 +186,6 @@ const DataManager = {
         if (typeof TextManager !== 'undefined') {
             TextManager.addTextLayers();
         }
-    },
-
-    /**
-     * Import Google Sheet data
-     * @param {string} sheetId - Google Sheet ID
-     * @param {string} sheetName - Name of the sheet tab
-     */
-    importGoogleSheet: function (sheetId, sheetName) {
-        // Input validation with better error messages
-        if (!validateSheetId(sheetId)) {
-            if (typeof ErrorHandler !== 'undefined') {
-                ErrorHandler.showError(ErrorHandler.ERROR_CODES.SHEETS_INVALID_ID);
-            } else {
-                alert("Please enter a valid Sheet ID (minimum 10 characters)");
-            }
-            const sheetIdElement = document.getElementById(Config.ui.sheetId);
-            if (sheetIdElement) sheetIdElement.focus();
-            return;
-        }
-
-        if (!validateSheetName(sheetName)) {
-            if (typeof ErrorHandler !== 'undefined') {
-                ErrorHandler.showError(ErrorHandler.ERROR_CODES.SHEETS_INVALID_NAME);
-            } else {
-                alert("Please enter a Sheet Name");
-            }
-            const sheetNameElement = document.getElementById(Config.ui.sheetName);
-            if (sheetNameElement) sheetNameElement.focus();
-            return;
-        }
-
-        // Show loading state
-        showLoading(true, "Importing from Google Sheets...");
-        showMessage("", false);
-
-        const csInterface = createCSInterface();
-        // Escape quotes to prevent script injection
-        const escapedSheetId = escapeQuotes(sheetId);
-        const escapedSheetName = escapeQuotes(sheetName);
-
-        csInterface.evalScript('importGoogleSheet("' + escapedSheetId + '", "' + escapedSheetName + '")', function (result) {
-            showLoading(false);
-            if (result && result !== "undefined" && result.indexOf("Error") === -1) {
-                showMessage("Data imported successfully", false);
-                if (typeof UIManager !== 'undefined') {
-                    UIManager.populateDataFieldDropdown();
-                }
-                if (typeof TextManager !== 'undefined') {
-                    TextManager.addTextLayers();
-                }
-            } else {
-                showMessage("Error importing Google Sheet data: " + result + ". Please check your credentials and try again.", true);
-            }
-        });
     },
 
     /**

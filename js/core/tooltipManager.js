@@ -55,7 +55,7 @@ const TooltipManager = {
             'createFolder()': 'Create the folder structure and compositions for batch processing',
             'dataSetupShowHide()': 'Show/hide data import options',
             'importDataFileJS()': 'Import data from a CSV file',
-            'importsheetdata()': 'Import data from Google Sheets',
+            'importJsonUrlJS()': 'Load JSON data from URL',
             'incrementSelectorJS()': 'Go to next data row (Arrow Down)',
             'decrementSelectorJS()': 'Go to previous data row (Arrow Up)',
             'populateDataFieldDropdown()': 'Refresh data field list',

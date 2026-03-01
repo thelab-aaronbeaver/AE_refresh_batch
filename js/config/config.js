@@ -29,8 +29,6 @@ const Config = {
 
     // Default values
     defaults: {
-        sheetId: "",
-        sheetName: "",
         templateWidth: 1920,
         templateHeight: 1080,
         templateDuration: 150,
@@ -41,10 +39,7 @@ const Config = {
     ui: {
         dataRowValue: "data-row-value",
         dropdownName: "dropdown-name",
-        sheetId: "sheetId",
-        sheetName: "sheetName",
         importPanel: "importPanel",
-        gDriveSetupPanel: "gDriveSetupPanel",
 		imageReplaceList: "imageReplaceList",
 		imageReplaceMappingList: "imageReplaceMappingList",
         mySheetResults: "mySheetResults",
@@ -60,10 +55,7 @@ const Config = {
     },
 
     // Validation rules
-    validation: {
-        minSheetIdLength: 10,
-        minSheetNameLength: 1
-    }
+    validation: {}
 };
 
 // Export for use in other modules

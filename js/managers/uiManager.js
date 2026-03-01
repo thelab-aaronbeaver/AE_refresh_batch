@@ -48,13 +48,6 @@ const UIManager = {
 	},
 	
 	/**
-	 * Show/hide Google Drive setup panel
-	 */
-	toggleGDriveSetup: function() {
-		toggleElementVisibility(Config.ui.gDriveSetupPanel, "flex");
-	},
-	
-	/**
 	 * Increment data row selector
 	 */
 	incrementSelector: function() {

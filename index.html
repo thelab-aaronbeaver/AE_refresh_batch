@@ -58,7 +58,7 @@
 
 	<div class="panel">
 		<button onclick="createFolder()" class="buttonyellow"
-			data-tooltip="Create folder structure and compositions">Fresh Batch Setup</button>
+			data-tooltip="Create folder structure and compositions. If it fails: AE Preferences > General and Scripting &amp; Expressions — enable &quot;Allow Scripts to Write Files and Access Network&quot;.">Fresh Batch Setup</button>
 		<button onclick="dataSetupShowHide()" class="buttonyellow" data-tooltip="Show/hide data import options">Data
 			Setup</button>
 	</div>
@@ -69,10 +69,6 @@
 				<button onclick="importDataFileJS()" class="buttonyellow button-adj import-btn" title="Import from CSV file">
 					<li class="icon fa-solid fa-file-csv"></li>
 					<span class="import-btn-label">CSV</span>
-				</button>
-				<button onclick="importDataFile()" class="buttonyellow button-adj import-btn" title="Import from Google Sheet">
-					<li class="icon fa-brands fa-google-drive"></li>
-					<span class="import-btn-label">Drive</span>
 				</button>
 				<button onclick="importJsonUrlJS()" class="buttonyellow button-adj import-btn" title="Load JSON data from URL">
 					<li class="icon fa-solid fa-link"></li>
@@ -88,19 +84,6 @@
 			</div>
 			<p class="keyboard-hint">Supports array-of-objects or array-of-arrays JSON. Data is previewed before use.</p>
 		</div>
-	</div>
-	<div class="panel" id="gDriveSetupPanel" hidden>
-		<p>Data Fields </p>
-		<div class="data-row">
-			<p>Sheet ID:</p>
-			<input type="text" id="sheetId" class="inputWide" name="sheet-id" placeholder="Enter Google Sheet ID">
-		</div>
-		<div class="data-row">
-			<p>Sheet Name:</p>
-			<input type="text" id="sheetName" class="inputWide" name="sheet-name"
-				placeholder="Enter Sheet Name (e.g., Sheet1)">
-		</div>
-		<button onclick="importsheetdata()" class="buttonyellow">Import gSheet Data</button>
 	</div>
 	<div class="panel-container panel-setup">
 		<h4 class="panel-row-element">Data Row:</h4>
