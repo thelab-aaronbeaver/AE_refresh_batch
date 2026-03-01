@@ -213,7 +213,9 @@ function estimateCSVSize(csvString) {
  * @returns {boolean} True if valid
  */
 function validateSheetId(sheetId) {
-    return sheetId && sheetId.trim().length >= 10;
+    if (!sheetId || typeof sheetId !== "string") return false;
+    var s = sheetId.trim();
+    return s.length >= 10 && /^[a-zA-Z0-9_-]+$/.test(s);
 }
 
 /**

@@ -13,11 +13,17 @@ const TextManager = {
     },
 
     /**
-     * Add expression to selected layer
+     * Add expression to selected layer (data-link expression, column 1). Shows OK or error in status.
      */
     addExpression: function () {
         const csInterface = createCSInterface();
-        csInterface.evalScript('addExpression()');
+        csInterface.evalScript('addExpression()', function (result) {
+            result = (result != null) ? String(result).trim() : "";
+            if (typeof showMessage === "function") {
+                if (result === "OK") showMessage("Expression added to selected layer.", false);
+                else if (result.indexOf("ERROR:") === 0) showMessage(result, true);
+            }
+        });
     }
 };
 

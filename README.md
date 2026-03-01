@@ -135,7 +135,7 @@ Refresh Extension/
 ## Known Limitations
 
 - Google Sheets integration requires manual OAuth setup
-- CSV parsing doesn't handle quoted fields with commas (use simple CSV format)
+- CSV parsing handles quoted fields with commas (see utils.js).
 - Some features may require specific After Effects project structure
 
 ## Improvements Made

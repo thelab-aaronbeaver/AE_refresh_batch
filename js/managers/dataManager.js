@@ -379,13 +379,14 @@ const DataManager = {
 					}
 					showLoading(true, "Importing into After Effects...");
 
-					var fs, pathModule, csvPath, folderForJSX, fileNameForJSX;
+					// Node.js (--enable-nodejs in manifest) required to write temp CSV for AE import; fail gracefully if unavailable
+				var fs, pathModule, csvPath, folderForJSX, fileNameForJSX;
 					try {
 						fs = require("fs");
 						pathModule = require("path");
 					} catch (e) {
 						showLoading(false);
-						showMessage("Node.js not available in panel. Use CSV file import for this data.", true);
+						showMessage("Node.js not available in this CEP environment. Use CSV file import instead, or enable Node in the extension manifest.", true);
 						return;
 					}
 
@@ -406,11 +407,11 @@ const DataManager = {
 						showLoading(false);
 						result = (result != null) ? String(result) : "";
 						if (result.indexOf("ERROR:") === 0) {
-							showMessage("AE import failed: " + result, true);
+							showMessage("AE import failed: " + result + " Run Fresh Batch Setup first so 02_Data exists; AE imports this CSV as the data source for that comp.", true);
 							return;
 						}
 						if (result.indexOf("OK:") !== 0) {
-							showMessage("Import result unclear (got: " + (result.length > 50 ? result.substring(0, 50) + "..." : result) + "). Check AE Info panel. CSV saved to: " + csvPath, true);
+							showMessage("Import result unclear (got: " + (result.length > 50 ? result.substring(0, 50) + "..." : result) + "). Run Fresh Batch Setup so 02_Data exists. CSV saved to: " + csvPath, true);
 							return;
 						}
 						showMessage("JSON URL imported into AE. " + stats.rowCount + " rows. CSV file: " + csvPath, false);

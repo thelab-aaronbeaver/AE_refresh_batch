@@ -106,7 +106,7 @@
 		<h4 class="panel-row-element">Data Row:</h4>
 		<div class="panel-row">
 			<input type="text" id="data-row-value" class="data-row-value" value="0" inputmode="numeric" pattern="[0-9]*" title="Type row number (0-based) and press Enter"
-				onkeydown="if (event.key === 'Enter') applyDataRowFromInput();" onblur="applyDataRowFromInput();">
+				onkeydown="if (event.key === 'Enter') applyDataRowFromInput();" onblur="applyDataRowFromInputDebounced();">
 			<div onclick="incrementSelectorJS()" class="icon buttonblue button-adj"
 				data-tooltip="Next row (Arrow Down)">
 				<li class="fa-solid  fa-plus"></li>
@@ -155,6 +155,20 @@
 			<label class="panel-row-element">Folder:</label>
 			<input type="text" id="exportFolderPath" class="inputWide export-folder-input" readonly placeholder="Default: project folder / Exports" title="Click Choose to set" />
 			<button type="button" onclick="chooseExportFolderJS()" class="buttonblue button-adj" title="Choose export folder">Choose</button>
+		</div>
+		<div class="panel-row">
+			<label class="panel-row-element">Filename label:</label>
+			<select id="exportLabelSource" class="export-select" title="Where the middle part of the filename comes from">
+				<option value="template">00_Template (layer 1 text)</option>
+				<option value="column">Data column:</option>
+			</select>
+			<select id="exportLabelColumn" class="export-select export-label-column" title="Column whose value is used in the filename (e.g. client name)">
+				<option value="">—</option>
+			</select>
+		</div>
+		<div class="panel-row export-preview-row">
+			<label class="panel-row-element">Preview:</label>
+			<input type="text" id="exportFilenamePreview" class="inputWide export-preview-input" readonly placeholder="e.g. 1_MyLabel.mov" title="Filename for current row (extension may vary by output template)" />
 		</div>
 	</div>
 	<div class="panel-container">

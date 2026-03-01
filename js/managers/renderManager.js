@@ -139,17 +139,80 @@ const RenderManager = {
     },
 
     /**
-     * Run render: set export options then addtoRenderQueue (uses selected preset or current UI)
-     * @param {boolean} batchRender
+     * Run render: set export options then addtoRenderQueue (uses selected preset or current UI).
+     * @param {boolean} batchRender - If true, batch is driven from JS (one row per evalScript callback).
+     * @param {function} [callback] - Called when this render completes (used for JS-driven batch loop).
      */
-    runRender: function (batchRender) {
+    runRender: function (batchRender, callback) {
         const settings = this.getExportSettings();
         const template = settings.template || "QT +";
         const folder = settings.folder || "";
+        const labelSourceEl = document.getElementById(Config.ui.exportLabelSource);
+        const columnEl = document.getElementById(Config.ui.exportLabelColumn);
+        const labelSource = (labelSourceEl && labelSourceEl.value === "column") ? "column" : "template";
+        const columnName = (columnEl && columnEl.value) ? columnEl.value : "";
         const csInterface = createCSInterface();
-        const setScript = "setExportOptions('" + this.escSingle(template) + "','" + this.escSingle(folder) + "')";
+        const setScript = "setExportOptions('" + this.escSingle(template) + "','" + this.escSingle(folder) + "','" + this.escSingle(labelSource) + "','" + this.escSingle(columnName) + "')";
         csInterface.evalScript(setScript, function () {
-            csInterface.evalScript("addtoRenderQueue(" + (batchRender ? "true" : "false") + ")");
+            csInterface.evalScript("addtoRenderQueue(" + (batchRender ? "true" : "false") + ")", function (result) {
+                if (typeof callback === "function") callback(result);
+            });
+        });
+    },
+
+    /**
+     * Set the "Filename label" column dropdown options from an array (e.g. from dataFieldDropdown callback).
+     */
+    setExportLabelColumnOptions: function (options) {
+        const columnEl = document.getElementById(Config.ui.exportLabelColumn);
+        if (!columnEl) return;
+        const currentValue = columnEl.value || "";
+        const list = Array.isArray(options) ? options : [];
+        columnEl.innerHTML = "";
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "—";
+        columnEl.appendChild(empty);
+        list.forEach(function (name) {
+            const o = document.createElement("option");
+            o.value = name;
+            o.textContent = name;
+            if (name === currentValue) o.selected = true;
+            columnEl.appendChild(o);
+        });
+        if (typeof this.refreshExportFilenamePreview === "function") this.refreshExportFilenamePreview();
+    },
+
+    /**
+     * Populate the "Filename label" column dropdown from 02_Data headers (same as data fields).
+     */
+    populateExportLabelColumnDropdown: function () {
+        const self = this;
+        const csInterface = createCSInterface();
+        csInterface.evalScript("dataFieldDropdown()", function (results) {
+            if (!results || typeof results !== "string") return;
+            const options = results.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+            self.setExportLabelColumnOptions(options);
+        });
+    },
+
+    /**
+     * Refresh the export filename preview (e.g. "1_Acme.mov") from AE using current row and label settings.
+     */
+    refreshExportFilenamePreview: function () {
+        const previewEl = document.getElementById(Config.ui.exportFilenamePreview);
+        const rowEl = document.getElementById(Config.ui.dataRowValue);
+        const labelSourceEl = document.getElementById(Config.ui.exportLabelSource);
+        const columnEl = document.getElementById(Config.ui.exportLabelColumn);
+        if (!previewEl) return;
+        const rowStr = (rowEl && rowEl.value != null) ? String(rowEl.value).trim() : "0";
+        const row = Math.max(0, Math.floor(parseInt(rowStr, 10) || 0));
+        const labelSource = (labelSourceEl && labelSourceEl.value === "column") ? "column" : "template";
+        const columnName = (columnEl && columnEl.value) ? columnEl.value : "";
+        const csInterface = createCSInterface();
+        const script = "getExportFilenamePreview(" + row + ",'" + this.escSingle(labelSource) + "','" + this.escSingle(columnName) + "')";
+        csInterface.evalScript(script, function (result) {
+            if (previewEl) previewEl.value = (result != null && result !== "") ? String(result) : "—";
         });
     },
 
@@ -209,10 +272,32 @@ const RenderManager = {
     },
 
     /**
-     * Start batch rendering process (uses selected output and folder)
+     * Start batch rendering process (JS-driven loop: one row per evalScript, reliable across AE versions).
      */
     batchRender: function () {
-        this.runRender(true);
+        const csInterface = createCSInterface();
+        const self = this;
+        csInterface.evalScript("getDataRowCount()", function (totalRowsResult) {
+            const totalRows = Math.max(0, Math.floor(Number(totalRowsResult)));
+            if (totalRows === 0) {
+                if (typeof showMessage === "function") showMessage("No data rows to render.", true);
+                return;
+            }
+            let currentRow = 0;
+            function doOneRow() {
+                if (currentRow >= totalRows) {
+                    if (typeof showMessage === "function") showMessage("Batch render complete. Rendered " + totalRows + " row(s).", false);
+                    return;
+                }
+                csInterface.evalScript("setSelectorRow(" + currentRow + ")", function () {
+                    self.runRender(false, function () {
+                        currentRow++;
+                        doOneRow();
+                    });
+                });
+            }
+            doOneRow();
+        });
     }
 };
 

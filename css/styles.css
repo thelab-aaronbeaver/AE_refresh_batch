@@ -460,6 +460,19 @@ li:hover {
 	min-width: 120px;
 }
 
+.export-label-column {
+	min-width: 120px;
+}
+
+.export-preview-row .export-preview-input {
+	flex: 1;
+	min-width: 140px;
+	background: #f8f8f8;
+	color: #333;
+	font-family: monospace;
+	font-size: 12px;
+}
+
 /* Status / message area (success text in mySheetResults) */
 #mySheetResults {
 	min-height: 24px;

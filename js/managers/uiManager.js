@@ -28,7 +28,7 @@ const UIManager = {
 			}
 			// Refresh data field list from 02_Data comp when opening Data Setup
 			if (importPanel && importPanel.style.display !== "none") {
-				this.populateDataFieldDropdown(true);
+				UIManager.populateDataFieldDropdown(true);
 			}
 		});
 		if (importPanel && importPanel.style.display !== "none") {
@@ -63,13 +63,15 @@ const UIManager = {
 			const dataRowElement = document.getElementById(Config.ui.dataRowValue);
 			if (dataRowElement) {
 				dataRowElement.value = String(result);
+				UIManager._lastAppliedRowValue = Math.max(0, Math.floor(Number(result)));
 			}
 			if (typeof ImageManager !== 'undefined') {
 				ImageManager.replaceImage();
 			}
-			if (typeof this.refreshImageReplacePreview === 'function') {
-				this.refreshImageReplacePreview();
+			if (typeof UIManager.refreshImageReplacePreview === 'function') {
+				UIManager.refreshImageReplacePreview();
 			}
+			if (typeof RenderManager !== "undefined" && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
 		});
 	},
 	
@@ -82,13 +84,15 @@ const UIManager = {
 			const dataRowElement = document.getElementById(Config.ui.dataRowValue);
 			if (dataRowElement) {
 				dataRowElement.value = String(result);
+				UIManager._lastAppliedRowValue = Math.max(0, Math.floor(Number(result)));
 			}
 			if (typeof ImageManager !== 'undefined') {
 				ImageManager.replaceImage();
 			}
-			if (typeof this.refreshImageReplacePreview === 'function') {
-				this.refreshImageReplacePreview();
+			if (typeof UIManager.refreshImageReplacePreview === 'function') {
+				UIManager.refreshImageReplacePreview();
 			}
+			if (typeof RenderManager !== "undefined" && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
 		});
 	},
 
@@ -102,12 +106,16 @@ const UIManager = {
 		csInterface.evalScript('getSelectorRow()', (result) => {
 			const val = result != null ? Math.max(0, Math.floor(Number(result))) : 0;
 			if (dataRowElement) dataRowElement.value = String(val);
+			UIManager._lastAppliedRowValue = val;
+			if (typeof RenderManager !== "undefined" && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
 		});
 	},
 
 	/**
 	 * Read data row from input, send to AE, and update input with result
 	 */
+	_lastAppliedRowValue: null,
+
 	setDataRowFromInput: function() {
 		const dataRowElement = document.getElementById(Config.ui.dataRowValue);
 		if (!dataRowElement) return;
@@ -117,24 +125,29 @@ const UIManager = {
 			dataRowElement.value = "0";
 			return;
 		}
+		if (this._lastAppliedRowValue === num) return;
+		this._lastAppliedRowValue = num;
 		const csInterface = createCSInterface();
 		csInterface.evalScript('setSelectorRow(' + num + ')', (result) => {
 			// Only update input if we got a value back from AE (avoid overwriting typed number with 0 when result is missing)
 			if (result != null && result !== "") {
 				const val = Math.max(0, Math.floor(Number(result)));
 				if (dataRowElement) dataRowElement.value = String(val);
+				UIManager._lastAppliedRowValue = val;
 			}
 			// If no result, sync from AE so we show actual slider value
 			if ((result == null || result === "") && dataRowElement) {
 				csInterface.evalScript('getSelectorRow()', function (current) {
 					const val = (current != null && current !== "") ? Math.max(0, Math.floor(Number(current))) : num;
 					if (dataRowElement) dataRowElement.value = String(val);
+					UIManager._lastAppliedRowValue = val;
 				});
 			}
 			if (typeof ImageManager !== 'undefined') ImageManager.replaceImage();
-			if (typeof this.refreshImageReplacePreview === 'function') {
-				this.refreshImageReplacePreview();
+			if (typeof UIManager.refreshImageReplacePreview === 'function') {
+				UIManager.refreshImageReplacePreview();
 			}
+			if (typeof RenderManager !== "undefined" && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
 		});
 	},
 	
@@ -187,6 +200,10 @@ const UIManager = {
 					})(name, i + 1);
 					quickAddEl.appendChild(btn);
 				});
+			}
+			// Keep export filename "label column" dropdown in sync
+			if (typeof RenderManager !== "undefined" && RenderManager.setExportLabelColumnOptions) {
+				RenderManager.setExportLabelColumnOptions(options);
 			}
 		});
 	},

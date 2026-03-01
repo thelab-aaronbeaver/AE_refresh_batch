@@ -26,7 +26,7 @@ const KeyboardManager = {
         // Escape key - close modals
         if (e.key === 'Escape') {
             const modal = document.getElementById('dataPreviewModal');
-            if (modal && !modal.hidden) {
+            if (modal && !modal.hidden && typeof PreviewManager !== 'undefined' && typeof PreviewManager.closePreview === 'function') {
                 PreviewManager.closePreview();
             }
         }
@@ -44,7 +44,7 @@ const KeyboardManager = {
         // Enter key - confirm operations (when in modal)
         if (e.key === 'Enter' && e.ctrlKey) {
             const modal = document.getElementById('dataPreviewModal');
-            if (modal && !modal.hidden) {
+            if (modal && !modal.hidden && typeof PreviewManager !== 'undefined' && typeof PreviewManager.confirmImport === 'function') {
                 PreviewManager.confirmImport();
             }
         }

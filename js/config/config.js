@@ -53,7 +53,10 @@ const Config = {
         exportFolderPath: "exportFolderPath",
 		exportPresetSelect: "exportPresetSelect",
 		jsonUrlInput: "jsonUrlInput",
-		dataFieldQuickAdd: "dataFieldQuickAdd"
+		dataFieldQuickAdd: "dataFieldQuickAdd",
+		exportFilenamePreview: "exportFilenamePreview",
+		exportLabelSource: "exportLabelSource",
+		exportLabelColumn: "exportLabelColumn"
     },
 
     // Validation rules

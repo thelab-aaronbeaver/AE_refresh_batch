@@ -60,10 +60,24 @@ function decrementSelectorJS() {
 }
 
 /**
- * Apply data row from the text input (on Enter or blur). Parses number and sets selector in AE.
+ * Apply data row from the text input (on Enter). Parses number and sets selector in AE.
  */
 function applyDataRowFromInput() {
 	UIManager.setDataRowFromInput();
+}
+
+/** Debounce timer for blur-driven row apply (avoids rapid replaceImage calls when tabbing). */
+var _dataRowBlurDebounce = null;
+
+/**
+ * Debounced apply data row (use for onblur so we only run after user stops).
+ */
+function applyDataRowFromInputDebounced() {
+	if (_dataRowBlurDebounce) clearTimeout(_dataRowBlurDebounce);
+	_dataRowBlurDebounce = setTimeout(function () {
+		_dataRowBlurDebounce = null;
+		UIManager.setDataRowFromInput();
+	}, 300);
 }
 
 /**
@@ -260,6 +274,20 @@ function initExportOptions() {
 	if (typeof RenderManager === "undefined") return;
 	if (RenderManager.populateOutputModuleDropdown) RenderManager.populateOutputModuleDropdown();
 	if (RenderManager.populatePresetDropdown) RenderManager.populatePresetDropdown();
+	if (RenderManager.populateExportLabelColumnDropdown) RenderManager.populateExportLabelColumnDropdown();
+	// When user changes filename label source or column, refresh the preview
+	var labelSourceEl = document.getElementById(Config.ui.exportLabelSource);
+	var columnEl = document.getElementById(Config.ui.exportLabelColumn);
+	if (labelSourceEl) {
+		labelSourceEl.addEventListener("change", function () {
+			if (RenderManager && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
+		});
+	}
+	if (columnEl) {
+		columnEl.addEventListener("change", function () {
+			if (RenderManager && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
+		});
+	}
 	FolderManager.getProjectPath(function (path) {
 		if (path && typeof DataManager !== "undefined" && DataManager.loadJsonUrlForProject) {
 			DataManager.loadJsonUrlForProject(path, function (url) {

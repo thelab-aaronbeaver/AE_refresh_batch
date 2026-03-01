@@ -49,16 +49,22 @@ var selectorComp = findComp(selectorCompNameS);
 // Stored for batch continuation (output template and folder chosen in UI)
 var _batchOutputTemplate = "QT +";
 var _batchExportFolder = "";
+var _batchLabelSource = "template"; // "template" = 00_Template layer 1 Source Text, "column" = data column value
+var _batchLabelColumn = "";         // When _batchLabelSource === "column", the column header name
 
 /**
- * Set export options from panel (template name and folder path).
+ * Set export options from panel (template name, folder path, and optional filename label source).
  * Call this before addtoRenderQueue so the selected output module is used.
  * @param {string} templateName - e.g. "H.264", "QT +"
  * @param {string} folderPath - Full path or ""
+ * @param {string} [labelSource] - "template" or "column"
+ * @param {string} [columnName] - When labelSource is "column", the data column header name
  */
-function setExportOptions(templateName, folderPath) {
+function setExportOptions(templateName, folderPath, labelSource, columnName) {
     _batchOutputTemplate = (templateName && templateName.length > 0) ? String(templateName) : "QT +";
     _batchExportFolder = (folderPath != null) ? String(folderPath) : "";
+    _batchLabelSource = (labelSource === "column") ? "column" : "template";
+    _batchLabelColumn = (_batchLabelSource === "column" && columnName != null) ? String(columnName) : "";
 }
 
 // ============================================================================
@@ -390,6 +396,11 @@ function findAll() {
  * This sets up the entire batch processing structure
  */
 function createFolder() {
+    if (findFolder(finalFolderName) !== null) {
+        alert("Setup already complete. Re-running would create duplicates. Skipping.");
+        infoWrite("Create folders: Already set up.");
+        return;
+    }
 
     app.beginUndoGroup("Create Folders");
     var folderTarget0 = app.project.items.addFolder(finalFolderName);
@@ -579,6 +590,54 @@ function getExportLabelFromTemplateLayer(templateComp) {
         return String(v.text);
     } catch (e) {
         return "row";
+    }
+}
+
+/**
+ * Get export label from a data column value for a given row (for filename configuration).
+ * @param {string} columnName - Column header name from 02_Data
+ * @param {number} rowIndex0Based - 0-based row index
+ * @returns {string} Raw cell value or "row" on error
+ */
+function getExportLabelForRow(columnName, rowIndex0Based) {
+    try {
+        findAll();
+        var compDataFound = findComp(dataCompName);
+        if (!compDataFound || compDataFound.numLayers < 1) return "row";
+        var dataLayer = compDataFound.layer(1);
+        var footage = dataLayer.source;
+        if (!footage || typeof footage.dataValue !== "function") return "row";
+        var colIndex = getCSVColumnIndexByName(footage, columnName);
+        if (colIndex < 1) return "row";
+        var val = readCSVCell(footage, colIndex, rowIndex0Based);
+        return (val != null && String(val).length > 0) ? String(val) : "row";
+    } catch (e) {
+        return "row";
+    }
+}
+
+/**
+ * Build the export filename preview string for the panel (row_label.ext). Does not modify render queue.
+ * @param {number} rowIndex0Based - 0-based row index (e.g. current selector row)
+ * @param {string} labelSource - "template" or "column"
+ * @param {string} columnName - When labelSource is "column", the column header name
+ * @returns {string} Filename only, e.g. "1_Acme.mov" (extension .mov for preview; actual render uses template default)
+ */
+function getExportFilenamePreview(rowIndex0Based, labelSource, columnName) {
+    try {
+        findAll();
+        var compTemplateFound = findComp(templateCompNameS);
+        var labelRaw = "row";
+        if (labelSource === "column" && columnName && String(columnName).length > 0) {
+            labelRaw = getExportLabelForRow(String(columnName), rowIndex0Based);
+        } else if (compTemplateFound && compTemplateFound.numLayers >= 1) {
+            labelRaw = getExportLabelFromTemplateLayer(compTemplateFound);
+        }
+        var label = sanitizeForFileName(labelRaw, 80);
+        var rowNum = Math.max(0, Math.floor(Number(rowIndex0Based)));
+        return rowNum + "_" + label + ".mov";
+    } catch (e) {
+        return "—";
     }
 }
 
@@ -989,7 +1048,6 @@ function addHeaderTextJSX() {
 
     for (var i = 0; i < headerTextArray.length; i++) {
         try {
-            findAll();
             var textPosition = (i + 1) * 100;
             var headerFontSize = 60;
             var headerIndex = i + 1;
@@ -1039,7 +1097,35 @@ function addSingleHeaderTextJSX(headerName, headerIndex) {
     }
 }
 
-
+/**
+ * Add the data-link expression to the selected text layer in the active comp.
+ * Uses column index 1 (first data field) by default. Returns "OK" or "ERROR: message".
+ * @returns {string}
+ */
+function addExpression() {
+    try {
+        var comp = app.project.activeItem;
+        if (!comp || !(comp instanceof CompItem)) {
+            return "ERROR: Select a composition first.";
+        }
+        var layer = comp.selectedLayers[0];
+        if (!layer) {
+            return "ERROR: Select a text layer in the comp.";
+        }
+        var srcText = layer.property("Source Text");
+        if (!srcText) {
+            return "ERROR: Selected layer is not a text layer.";
+        }
+        findAll();
+        var headerIndexNum = 1;
+        var expression =
+            'text.sourceText.createStyle().setFontSize(60)\nvar selector = comp("' + selectorCompName + '").layer("Selector").effect("Slider Control")("Slider")\nvar dataElement\ncomp("' + dataCompName + '").layer(1)("Data")("Outline")(' + headerIndexNum + ')(selector)';
+        layer.text.sourceText.expression = expression;
+        return "OK";
+    } catch (error) {
+        return "ERROR: " + (error.message || String(error));
+    }
+}
 
 
 // ============================================================================
@@ -1200,10 +1286,6 @@ function addtoRenderQueue(batchRender, outputTemplateName, exportFolderPath) {
             return;
         }
 
-        // Export filename label is built from layer 1 of 00_Template (Source Text)
-        var dataCompLabelRaw = getExportLabelFromTemplateLayer(compTemplateFound);
-        var dataCompLabel = sanitizeForFileName(dataCompLabelRaw, 80);
-
         var compFound = findComp(selectorCompName);
         if (compFound === null) {
             alert("Selector composition (03_Selector) not found. Run Fresh Batch Setup first.");
@@ -1218,6 +1300,15 @@ function addtoRenderQueue(batchRender, outputTemplateName, exportFolderPath) {
         }
         var slider = sliderLayer.property("Effects")("Slider Control")("Slider");
         var rowNumber = Math.round(slider.value);
+
+        // Export filename label: from 00_Template layer 1 Source Text, or from selected data column value
+        var dataCompLabelRaw = "row";
+        if (_batchLabelSource === "column" && _batchLabelColumn && _batchLabelColumn.length > 0) {
+            dataCompLabelRaw = getExportLabelForRow(_batchLabelColumn, rowNumber);
+        } else {
+            dataCompLabelRaw = getExportLabelFromTemplateLayer(compTemplateFound);
+        }
+        var dataCompLabel = sanitizeForFileName(dataCompLabelRaw, 80);
 
         // Use passed-in args or fall back to values set by setExportOptions() from panel
         var templateName = (outputTemplateName && outputTemplateName.length > 0) ? outputTemplateName : _batchOutputTemplate;
@@ -1253,7 +1344,17 @@ function addtoRenderQueue(batchRender, outputTemplateName, exportFolderPath) {
         }
         item.applyTemplate("Best Settings");
 
-        var baseName = rowNumber + "_" + dataCompLabel + "_" + outputModule.file.name;
+        // Build filename explicitly: rowNumber_label.ext (extension from template default or .mov)
+        var omFileName = outputModule.file ? String(outputModule.file.name) : "";
+        var ext = ".mov";
+        if (omFileName.length > 0) {
+            var lastDot = omFileName.lastIndexOf(".");
+            if (lastDot > 0 && lastDot < omFileName.length - 1) {
+                ext = omFileName.substring(lastDot);
+                if (ext.indexOf("\\") >= 0 || ext.indexOf("/") >= 0) ext = ".mov";
+            }
+        }
+        var baseName = rowNumber + "_" + dataCompLabel + ext;
         var sep = (exportFolder.fsName.indexOf("/") >= 0) ? "/" : "\\";
         var outputPath = exportFolder.fsName + sep + baseName;
         var myFile = new File(outputPath);
