@@ -160,7 +160,7 @@ F::-webkit-scrollbar-button {
 	background: #003566;
 	width: 100%;
 	color: #eee;
-	font-size: 18px;
+	font-size: 12px;
 	font-family: Tahoma;
 	padding: 1em;
 }
@@ -217,7 +217,7 @@ button {
 	cursor: pointer;
 	color: #ffc300;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 15px;
+	font-size: 12px;
 	text-decoration: none;
 
 }
@@ -242,7 +242,7 @@ button {
 	cursor: pointer;
 	color: #000814;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 15px;
+	font-size: 12px;
 	padding: 8px 20px;
 	text-decoration: none;
 
@@ -269,7 +269,7 @@ button {
 }
 
 .import-btn-label {
-	font-size: 11px;
+	font-size: 10px;
 	opacity: 0.9;
 	text-transform: uppercase;
 	letter-spacing: 0.02em;
@@ -296,7 +296,7 @@ button {
 .button-primary {
 	font-weight: 700;
 	padding: 10px 18px;
-	font-size: 15px;
+	font-size: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -359,25 +359,61 @@ li:hover {
 }
 .section-title {
 	margin: 0 0 6px 0;
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	color: #555;
 }
-.panel-data-section .data-section-header {
-	align-items: center;
-	gap: 6px;
-	margin-bottom: 6px;
+
+/* Data Row + Quick Add (2-column layout like screenshot) */
+.panel-data-section .data-section-grid {
+	display: flex;
+	align-items: stretch;
+	gap: 14px;
 }
-.panel-data-section .data-section-header .data-row-value {
-	width: 2.8em;
-	padding: 4px 2px;
+.panel-data-section .data-row-box {
+	min-width: 110px;
 }
-.data-fields-label {
+.panel-data-section .data-fields-box {
+	flex: 1;
+	min-width: 0;
+}
+.panel-data-section .data-section-divider {
+	width: 1px;
+	background: #d7d7d7;
+	border-radius: 1px;
+}
+.panel-data-section .data-box-title {
 	font-size: 12px;
-	color: #555;
-	margin-left: 12px;
+	font-weight: 600;
+	color: #333;
+	margin-bottom: 8px;
+}
+.panel-data-section .data-fields-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+.panel-data-section .data-row-value {
+	width: 3.2em;
+	text-align: center;
+	padding: 6px 2px;
+}
+.panel-data-section .data-row-buttons {
+	display: flex;
+	gap: 10px;
+	margin-top: 10px;
+}
+.panel-data-section .data-row-btn {
+	width: 44px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
 }
 .icon-refresh-small {
 	cursor: pointer;
@@ -387,8 +423,8 @@ li:hover {
 	opacity: 1;
 }
 .panel-data-section .data-field-quick-add {
-	margin-top: 4px;
-	gap: 5px;
+	margin-top: 0;
+	gap: 8px;
 }
 .image-replace-header {
 	margin-bottom: 6px;
@@ -473,7 +509,7 @@ li:hover {
 .data-preview-results {
 	max-height: 280px;
 	overflow: auto;
-	font-size: 12px;
+	font-size: 10px;
 }
 
 .data-preview-results .preview-summary {
@@ -485,7 +521,7 @@ li:hover {
 .data-preview-results .preview-table {
 	width: 100%;
 	border-collapse: collapse;
-	font-size: 11px;
+	font-size: 10px;
 }
 
 .data-preview-results .preview-table th,
@@ -535,7 +571,7 @@ li:hover {
 	background: #f8f8f8;
 	color: #333;
 	font-family: monospace;
-	font-size: 11px;
+	font-size: 10px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -547,7 +583,7 @@ li:hover {
 #mySheetResults {
 	min-height: 24px;
 	padding: 8px 0;
-	font-size: 13px;
+	font-size: 12px;
 	line-height: 1.4;
 }
 
@@ -576,7 +612,7 @@ li:hover {
 }
 
 .data-field-quick-add .button-quick-add {
-	font-size: 12px;
+	font-size: 10px;
 	padding: 5px 10px;
 	white-space: nowrap;
 	max-width: 140px;
@@ -639,7 +675,7 @@ li:hover {
 }
 
 .image-replace-fallback-path {
-	font-size: 10px;
+	font-size: 8px;
 	color: #8a9fb5;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -662,7 +698,7 @@ li:hover {
 	background: #003566;
 	color: #ffc300;
 	border-radius: 4px;
-	font-size: 12px;
+	font-size: 10px;
 	font-weight: 600;
 }
 
@@ -673,7 +709,7 @@ li:hover {
 	gap: 10px;
 	padding: 10px;
 	color: #ffc300;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .spinner {
@@ -717,7 +753,7 @@ li:hover {
 
 .error-container em {
 	color: #636e72;
-	font-size: 12px;
+	font-size: 10px;
 	display: block;
 	margin-top: 5px;
 }
@@ -808,7 +844,7 @@ li:hover {
 .data-preview-table {
 	width: 100%;
 	border-collapse: collapse;
-	font-size: 12px;
+	font-size: 10px;
 }
 
 .data-preview-table thead {
@@ -868,7 +904,7 @@ li:hover {
 }
 
 .stat-label {
-	font-size: 11px;
+	font-size: 8px;
 	color: #666;
 	text-transform: uppercase;
 	margin-bottom: 5px;
@@ -914,7 +950,7 @@ button.processing::after {
 	color: white;
 	padding: 8px 12px;
 	border-radius: 4px;
-	font-size: 12px;
+	font-size: 10px;
 	z-index: 10000;
 	pointer-events: none;
 	opacity: 0;
@@ -960,7 +996,7 @@ button.processing::after {
 
 /* Keyboard Shortcut Hint */
 .keyboard-hint {
-	font-size: 10px;
+	font-size: 8px;
 	color: #999;
 	margin-left: 5px;
 }

@@ -46,7 +46,7 @@
 .spectrum.spectrum--light .header-title p {
 	color: var(--spectrum-gray-800) !important;
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .spectrum.spectrum--light .header-logo .fa-sun {
@@ -79,7 +79,7 @@
 	color: #ffffff !important;
 	border-radius: var(--spectrum-radius) !important;
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 12px;
 	padding: 8px 16px;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 	margin: 8px 10px;
@@ -109,7 +109,7 @@
 	border: 1px solid var(--spectrum-gray-300) !important;
 	color: var(--spectrum-gray-800) !important;
 	border-radius: var(--spectrum-radius) !important;
-	font-size: 14px;
+	font-size: 12px;
 	padding: 8px 14px;
 	margin: 8px 10px;
 }
@@ -152,11 +152,11 @@
 .spectrum.spectrum--light .panel-row-element,
 .spectrum.spectrum--light label {
 	color: var(--spectrum-gray-800) !important;
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: 600;
 }
 .spectrum.spectrum--light .section-title {
-	font-size: 11px !important;
+	font-size: 10px !important;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
@@ -164,9 +164,17 @@
 	margin: 0 0 6px 0;
 }
 
+/* Data Row + Quick Add panel layout */
+.spectrum.spectrum--light .panel-data-section .data-section-divider {
+	background: var(--spectrum-gray-200);
+}
+.spectrum.spectrum--light .panel-data-section .data-box-title {
+	color: var(--spectrum-gray-800);
+}
+
 .spectrum.spectrum--light .element h4 {
 	margin: 0 0 10px 0;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 /* Text inputs – Spectrum textfield look */
@@ -179,13 +187,13 @@
 	color: var(--spectrum-gray-900) !important;
 	border-radius: var(--spectrum-radius) !important;
 	padding: 6px 10px !important;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .spectrum.spectrum--light .export-filename-preview {
 	background-color: var(--spectrum-gray-75) !important;
 	color: var(--spectrum-gray-900) !important;
-	font-size: 11px;
+	font-size: 10px;
 	padding: 5px 8px;
 }
 
@@ -209,7 +217,7 @@
 	color: var(--spectrum-gray-900) !important;
 	border-radius: var(--spectrum-radius) !important;
 	padding: 6px 10px !important;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .spectrum.spectrum--light select:hover,
@@ -235,7 +243,7 @@
 
 .spectrum.spectrum--light .keyboard-hint {
 	color: var(--spectrum-gray-600) !important;
-	font-size: 12px;
+	font-size: 8px;
 	margin-top: 6px;
 }
 
