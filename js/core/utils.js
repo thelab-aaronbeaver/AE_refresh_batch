@@ -245,6 +245,105 @@ function toggleElementVisibility(elementId, displayType = "block") {
 }
 
 // Export functions for use in other modules
+/**
+ * Map HTTP Content-Type to file extension so we preserve the actual image format.
+ * @param {string} contentType - e.g. "image/png" or "image/jpeg; charset=utf-8"
+ * @returns {string} Extension including dot, e.g. ".png", or "" if unknown
+ */
+function extensionFromContentType(contentType) {
+	if (!contentType || typeof contentType !== "string") return "";
+	var type = contentType.split(";")[0].trim().toLowerCase();
+	var map = {
+		"image/jpeg": ".jpg",
+		"image/jpg": ".jpg",
+		"image/png": ".png",
+		"image/gif": ".gif",
+		"image/webp": ".webp",
+		"image/bmp": ".bmp",
+		"image/tiff": ".tif",
+		"image/x-tiff": ".tif"
+	};
+	return map[type] || "";
+}
+
+/**
+ * Download an image from a URL to a local file (Node.js). Uses http(s).get + createWriteStream + pipe.
+ * Preserves original format: if the response Content-Type is an image type, the file is saved/renamed with that extension.
+ * @param {string} url - Full image URL (http or https)
+ * @param {string} destFilePath - Full path for the saved file (extension may be updated from Content-Type)
+ * @param {function(Error|null, string)} callback - Called with (err, localPath). localPath is the final path (may differ if renamed to match format).
+ */
+function downloadImageFromUrl(url, destFilePath, callback) {
+	if (!url || typeof url !== "string" || url.trim().length === 0) {
+		if (typeof callback === "function") callback(new Error("No URL"), "");
+		return;
+	}
+	url = url.trim();
+	if (url.indexOf("http://") !== 0 && url.indexOf("https://") !== 0) {
+		if (typeof callback === "function") callback(new Error("Not an HTTP(S) URL"), "");
+		return;
+	}
+	var fs, pathModule, http, https;
+	try {
+		fs = require("fs");
+		pathModule = require("path");
+		http = require("http");
+		https = require("https");
+	} catch (e) {
+		if (typeof callback === "function") callback(new Error("Node.js not available"), "");
+		return;
+	}
+	var dir = pathModule.dirname(destFilePath);
+	try {
+		if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+	} catch (e) {
+		if (typeof callback === "function") callback(e, "");
+		return;
+	}
+	var file = fs.createWriteStream(destFilePath);
+	function done(err) {
+		file.close();
+		try { fs.unlinkSync(destFilePath); } catch (e2) {}
+		if (typeof callback === "function") callback(err, "");
+	}
+	var lib = url.indexOf("https://") === 0 ? https : http;
+	var req = lib.get(url, { timeout: 15000 }, function (res) {
+		if (res.statusCode === 301 || res.statusCode === 302 && res.headers.location) {
+			file.close();
+			downloadImageFromUrl(res.headers.location, destFilePath, callback);
+			return;
+		}
+		if (res.statusCode !== 200) {
+			done(new Error("HTTP " + res.statusCode));
+			return;
+		}
+		var contentTypeExt = extensionFromContentType(res.headers["content-type"]);
+		res.pipe(file);
+		file.on("finish", function () {
+			file.close();
+			var finalPath = destFilePath;
+			if (contentTypeExt) {
+				var baseNoExt = destFilePath.replace(/\.[^.\\/]*$/, "");
+				var wantedPath = baseNoExt + contentTypeExt;
+				if (wantedPath !== destFilePath) {
+					try {
+						if (fs.existsSync(wantedPath)) fs.unlinkSync(wantedPath);
+						fs.renameSync(destFilePath, wantedPath);
+						finalPath = wantedPath;
+					} catch (e) {
+						// leave file at destFilePath if rename fails
+					}
+				}
+			}
+			if (typeof callback === "function") callback(null, finalPath);
+		});
+	});
+	file.on("error", function (err) { done(err); });
+	req.on("error", function (err) { done(err); });
+	req.on("timeout", function () { req.destroy(); done(new Error("Timeout")); });
+	if (req.setTimeout) req.setTimeout(15000);
+}
+
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = {
 		getOS,
@@ -256,6 +355,7 @@ if (typeof module !== 'undefined' && module.exports) {
 		estimateCSVSize,
 		validateSheetId,
 		validateSheetName,
-		toggleElementVisibility
+		toggleElementVisibility,
+		downloadImageFromUrl
 	};
 }

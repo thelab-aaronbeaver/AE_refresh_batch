@@ -134,6 +134,13 @@ function addReplaceImageOption() {
 }
 
 /**
+ * Download image from URL to project folder and import into 01_Images
+ */
+function importImageFromUrlJS() {
+	ImageManager.importImageFromUrl();
+}
+
+/**
  * Populate image replace mapping (00_Template layer dropdowns per image slot)
  */
 function populateImageReplaceList() {
@@ -259,14 +266,8 @@ function initExportOptions() {
 	if (RenderManager.populateOutputModuleDropdown) RenderManager.populateOutputModuleDropdown();
 	if (RenderManager.populatePresetDropdown) RenderManager.populatePresetDropdown();
 	if (RenderManager.populateExportLabelColumnDropdown) RenderManager.populateExportLabelColumnDropdown();
-	// When user changes filename label source or column, refresh the preview
-	var labelSourceEl = document.getElementById(Config.ui.exportLabelSource);
+	// When user changes filename label (00_Template layer), refresh the preview
 	var columnEl = document.getElementById(Config.ui.exportLabelColumn);
-	if (labelSourceEl) {
-		labelSourceEl.addEventListener("change", function () {
-			if (RenderManager && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();
-		});
-	}
 	if (columnEl) {
 		columnEl.addEventListener("change", function () {
 			if (RenderManager && RenderManager.refreshExportFilenamePreview) RenderManager.refreshExportFilenamePreview();

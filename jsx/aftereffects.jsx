@@ -49,22 +49,19 @@ var selectorComp = findComp(selectorCompNameS);
 // Stored for batch continuation (output template and folder chosen in UI)
 var _batchOutputTemplate = "QT +";
 var _batchExportFolder = "";
-var _batchLabelSource = "template"; // "template" = 00_Template layer 1 Source Text, "column" = data column value
-var _batchLabelColumn = "";         // When _batchLabelSource === "column", the column header name
+var _batchLabelLayer = ""; // 00_Template text layer name for filename label (empty = use "row")
 
 /**
- * Set export options from panel (template name, folder path, and optional filename label source).
+ * Set export options from panel (template name, folder path, and optional filename label layer).
  * Call this before addtoRenderQueue so the selected output module is used.
  * @param {string} templateName - e.g. "H.264", "QT +"
  * @param {string} folderPath - Full path or ""
- * @param {string} [labelSource] - "template" or "column"
- * @param {string} [columnName] - When labelSource is "column", the data column header name
+ * @param {string} [layerName] - 00_Template text layer name for filename label (empty = "row")
  */
-function setExportOptions(templateName, folderPath, labelSource, columnName) {
+function setExportOptions(templateName, folderPath, layerName) {
     _batchOutputTemplate = (templateName && templateName.length > 0) ? String(templateName) : "QT +";
     _batchExportFolder = (folderPath != null) ? String(folderPath) : "";
-    _batchLabelSource = (labelSource === "column") ? "column" : "template";
-    _batchLabelColumn = (_batchLabelSource === "column" && columnName != null) ? String(columnName) : "";
+    _batchLabelLayer = (layerName != null && String(layerName).length > 0) ? String(layerName) : "";
 }
 
 // ============================================================================
@@ -122,13 +119,15 @@ function getNotFoundImagePathJSX() {
 }
 
 /**
- * Write info message to After Effects info panel
- * @param {string} Info - Message to display
+ * Write info message to After Effects info panel.
+ * Safe for CEP (no system.callSystem - can be blocked when run from extension).
  */
 function infoWrite(Info) {
-    var time_Str = system.callSystem('cmd.exe /c "time /t"');
-    clearOutput();
-    writeLn(Info + " " + time_Str);
+    try {
+        clearOutput();
+        var timeStr = (new Date()).toString();
+        if (Info) writeLn(Info + " " + timeStr);
+    } catch (e) {}
 }
 
 // ============================================================================
@@ -393,92 +392,118 @@ function findAll() {
 
 /**
  * Create the initial folder structure and compositions
- * This sets up the entire batch processing structure
+ * @param {string} [extensionPathFromPanel] - Extension root path from CEP (panel); used to find img/notFound.jpg
+ * @returns {string} "OK" on success, "ERROR: message" on failure (so CEP callback always runs)
  */
-function createFolder() {
+function createFolder(extensionPathFromPanel) {
     if (findFolder(finalFolderName) !== null) {
         alert("Setup already complete. Re-running would create duplicates. Skipping.");
         infoWrite("Create folders: Already set up.");
-        return;
+        return "OK";
     }
 
-    app.beginUndoGroup("Create Folders");
-    var folderTarget0 = app.project.items.addFolder(finalFolderName);
-    var folderTarget1 = app.project.items.addFolder(imagesFolderName);
-    folderTarget1.parentFolder = folderTarget0
-    var folderTarget2 = app.project.items.addFolder(dataFolderName);
-    folderTarget2.parentFolder = folderTarget0
-    var folderTarget3 = app.project.items.addFolder(compsFolderName);
-    folderTarget3.parentFolder = folderTarget0
+    try {
+        app.beginUndoGroup("Create Folders");
+        var folderTarget0 = app.project.items.addFolder(finalFolderName);
+        var folderTarget1 = app.project.items.addFolder(imagesFolderName);
+        folderTarget1.parentFolder = folderTarget0;
+        var folderTarget2 = app.project.items.addFolder(dataFolderName);
+        folderTarget2.parentFolder = folderTarget0;
+        var folderTarget3 = app.project.items.addFolder(compsFolderName);
+        folderTarget3.parentFolder = folderTarget0;
 
+        infoWrite("Folders Created");
 
+        // Import placeholder notFound.jpg into 01_Images (path from panel when run from CEP, else from JSX)
+        var notFoundPath = "";
+        if (extensionPathFromPanel && trimStr(String(extensionPathFromPanel)).length > 0) {
+            var base = trimStr(String(extensionPathFromPanel)).replace(/[\/\\]+$/, "");
+            var sep = (osCheck() === "PC") ? "\\" : "/";
+            notFoundPath = base + sep + "img" + sep + "notFound.jpg";
+        }
+        if (!notFoundPath || notFoundPath.length === 0) {
+            notFoundPath = getNotFoundImagePathJSX();
+        }
+        try {
+            if (notFoundPath && notFoundPath.length > 0) {
+                var notFoundFile = new File(notFoundPath);
+                if (!notFoundFile.exists && notFoundPath.indexOf("/") >= 0) {
+                    notFoundFile = new File(notFoundPath.replace(/\//g, "\\"));
+                }
+                if (!notFoundFile.exists && notFoundPath.indexOf("\\") >= 0) {
+                    notFoundFile = new File(notFoundPath.replace(/\\/g, "/"));
+                }
+                if (notFoundFile.exists) {
+                    var importOpts = new ImportOptions();
+                    importOpts.file = notFoundFile;
+                    var placeholderItem = app.project.importFile(importOpts);
+                    if (placeholderItem !== null) {
+                        placeholderItem.parentFolder = folderTarget1;
+                        infoWrite("Placeholder image added to 01_Images");
+                    }
+                }
+            }
+        } catch (imgErr) {
+            infoWrite("Note: Could not add placeholder to 01_Images - " + imgErr.toString());
+        }
 
-    app.endUndoGroup();
+        var newComptemplate, newCompimages, newCompdata, newCompselector;
+        try {
+            newComptemplate = app.project.items.addComp(templateCompNameS, 1920, 1080, 1, 10, 30);
+            newCompimages = app.project.items.addComp(imagesCompNameS, 2000, 2000, 1, 10, 30);
+            newCompdata = app.project.items.addComp(dataCompNameS, 500, 500, 1, 10, 30);
+            newCompselector = app.project.items.addComp(selectorCompNameS, 500, 500, 1, 10, 30);
+        } catch (compErr) {
+            try { app.endUndoGroup(); } catch (e2) {}
+            return "ERROR:creating comps:" + compErr.toString();
+        }
 
-    findAll();
+        newComptemplate.parentFolder = folderTarget0;
+        newCompimages.parentFolder = folderTarget3;
+        newCompdata.parentFolder = folderTarget3;
+        newCompselector.parentFolder = folderTarget3;
 
-    infoWrite("Folders Created");
+        try {
+            newCompdata.openInViewer();
+            newCompselector.openInViewer();
+            newComptemplate.openInViewer();
+        } catch (viewerErr) {
+            infoWrite("Note: Could not open viewers");
+        }
 
-    var newComptemplate = app.project.items.addComp(
-        templateCompNameS,
-        1920,
-        1080,
-        1,
-        150,
-        29.97
-    );
-    var newCompimages = app.project.items.addComp(
-        imagesCompNameS,
-        2000,
-        2000,
-        1,
-        100,
-        29.97
-    );
-    var newCompdata = app.project.items.addComp(
-        dataCompNameS,
-        500,
-        500,
-        1,
-        100,
-        29.97
-    );
-    var newCompselector = app.project.items.addComp(
-        selectorCompNameS,
-        500,
-        500,
-        1,
-        100,
-        29.97
-    );
+        try {
+            newComptemplate.layers.add(newCompdata);
+            newComptemplate.layer(1).guideLayer = true;
+            newComptemplate.layer(1).shy = true;
+        } catch (layerErr) {
+            try { app.endUndoGroup(); } catch (e2) {}
+            return "ERROR:adding data to template:" + layerErr.toString();
+        }
+        infoWrite("Comps Created");
 
-    findAll();
+        try {
+            var selectorLayer = newCompselector.layers.addNull();
+            selectorLayer.name = selectorName;
+            newCompselector.layer(selectorName).property("Effects").addProperty("Slider Control");
+        } catch (selErr) {
+            try { app.endUndoGroup(); } catch (e2) {}
+            return "ERROR:selector layer:" + selErr.toString();
+        }
+        infoWrite("Selector Layer Created");
 
-    newComptemplate.parentFolder = finalFolder;
-    newCompimages.parentFolder = compsFolder;
-    newCompdata.parentFolder = compsFolder;
-    newCompselector.parentFolder = compsFolder;
+        findAll();
 
-
-
-    newCompdata.openInViewer();
-    newCompselector.openInViewer();
-    newComptemplate.openInViewer();
-
-    findAll();
-
-    templateComp.layers.add(newCompdata);
-    templateComp.layer(1).guideLayer = true;
-    templateComp.layer(1).shy = true;
-    app.endUndoGroup();
-    infoWrite("Comps Created");
-
-    var selectorLayer = selectorComp.layers.addNull();
-    selectorLayer.name = selectorName;
-    infoWrite("Selector Layer Created");
-    selectorComp.layer(selectorName).property("Effects").addProperty("Slider Control");
-
-};
+        app.endUndoGroup();
+        return "OK";
+    } catch (e) {
+        try {
+            app.endUndoGroup();
+        } catch (e2) {}
+        var errMsg = e.toString();
+        infoWrite("Create folders error: " + errMsg);
+        return "ERROR:" + errMsg;
+    }
+}
 
 
 
@@ -594,8 +619,72 @@ function getExportLabelFromTemplateLayer(templateComp) {
 }
 
 /**
+ * Get current Source Text value of a named text layer in 00_Template (selector must already be at desired row).
+ * @param {CompItem} templateComp - The 00_Template composition
+ * @param {string} layerName - Layer name in that comp
+ * @returns {string} Raw label or "row" on error
+ */
+function getExportLabelFromTemplateLayerByName(templateComp, layerName) {
+    if (!templateComp || !layerName || String(layerName).length === 0) return "row";
+    try {
+        var layer = templateComp.layers.byName(layerName);
+        if (layer === null) return "row";
+        var srcText = layer.property("Source Text");
+        if (!srcText) return "row";
+        var v = srcText.value;
+        if (!v || !v.text) return "row";
+        return String(v.text);
+    } catch (e) {
+        return "row";
+    }
+}
+
+/**
+ * Get export label from a 00_Template text layer for a specific row (sets selector, reads, restores).
+ * @param {CompItem} templateComp - The 00_Template composition
+ * @param {string} layerName - Text layer name
+ * @param {number} rowIndex0Based - 0-based row index
+ * @returns {string} Raw label or "row" on error
+ */
+function getExportLabelFromTemplateLayerAtRow(templateComp, layerName, rowIndex0Based) {
+    if (!templateComp || !layerName || String(layerName).length === 0) return "row";
+    try {
+        var currentRow = getSelectorRow();
+        var row = Math.max(0, Math.floor(Number(rowIndex0Based)));
+        if (currentRow !== row) setSelectorRow(row);
+        var label = getExportLabelFromTemplateLayerByName(templateComp, layerName);
+        if (currentRow !== row) setSelectorRow(currentRow);
+        return label;
+    } catch (e) {
+        return "row";
+    }
+}
+
+/**
+ * Get 1-based column index from 02_Data layer's Outline by name (same source as dataFieldDropdown).
+ * Use when CSV header lookup fails so export filename uses the selected column.
+ * @param {Layer} dataLayer - 02_Data comp layer 1 (has Data/Outline)
+ * @param {string} columnName - Column name shown in dropdown
+ * @returns {number} 1-based Outline index or 0 if not found
+ */
+function getOutlineColumnIndexByName(dataLayer, columnName) {
+    if (!dataLayer || !columnName || String(columnName).length === 0) return 0;
+    var norm = trimStr(String(columnName)).toLowerCase();
+    for (var i = 1; i <= 99; i++) {
+        try {
+            var name = dataLayer("Data")("Outline")(i).name;
+            if (trimStr(String(name)).toLowerCase() === norm) return i;
+        } catch (e) {
+            break;
+        }
+    }
+    return 0;
+}
+
+/**
  * Get export label from a data column value for a given row (for filename configuration).
- * @param {string} columnName - Column header name from 02_Data
+ * Tries CSV footage header match first, then Outline name match (same as dropdown).
+ * @param {string} columnName - Column header name from 02_Data (e.g. from Filename label dropdown)
  * @param {number} rowIndex0Based - 0-based row index
  * @returns {string} Raw cell value or "row" on error
  */
@@ -608,9 +697,15 @@ function getExportLabelForRow(columnName, rowIndex0Based) {
         var footage = dataLayer.source;
         if (!footage || typeof footage.dataValue !== "function") return "row";
         var colIndex = getCSVColumnIndexByName(footage, columnName);
+        if (colIndex < 1) {
+            colIndex = getOutlineColumnIndexByName(dataLayer, columnName);
+        }
         if (colIndex < 1) return "row";
         var val = readCSVCell(footage, colIndex, rowIndex0Based);
-        return (val != null && String(val).length > 0) ? String(val) : "row";
+        if (val == null || String(val).length === 0) return "row";
+        var s = trimStr(String(val));
+        if (s.toLowerCase() === "undefined" || s.toLowerCase() === "null") return "row";
+        return s;
     } catch (e) {
         return "row";
     }
@@ -618,18 +713,18 @@ function getExportLabelForRow(columnName, rowIndex0Based) {
 
 /**
  * Build the export filename preview string for the panel (row_label.ext). Does not modify render queue.
+ * Uses 00_Template text layer Source Text for the given row.
  * @param {number} rowIndex0Based - 0-based row index (e.g. current selector row)
- * @param {string} labelSource - "template" or "column"
- * @param {string} columnName - When labelSource is "column", the column header name
+ * @param {string} layerName - 00_Template text layer name (empty = use "row")
  * @returns {string} Filename only, e.g. "1_Acme.mov" (extension .mov for preview; actual render uses template default)
  */
-function getExportFilenamePreview(rowIndex0Based, labelSource, columnName) {
+function getExportFilenamePreview(rowIndex0Based, layerName) {
     try {
         findAll();
         var compTemplateFound = findComp(templateCompNameS);
         var labelRaw = "row";
-        if (labelSource === "column" && columnName && String(columnName).length > 0) {
-            labelRaw = getExportLabelForRow(String(columnName), rowIndex0Based);
+        if (layerName && String(layerName).length > 0 && compTemplateFound) {
+            labelRaw = getExportLabelFromTemplateLayerAtRow(compTemplateFound, String(layerName), rowIndex0Based);
         } else if (compTemplateFound && compTemplateFound.numLayers >= 1) {
             labelRaw = getExportLabelFromTemplateLayer(compTemplateFound);
         }
@@ -680,10 +775,34 @@ function getPathFromTemplateLayerSourceText(templateComp, layerName) {
         if (!v) return "";
         var text = (typeof v.text !== "undefined") ? v.text : String(v);
         if (text == null || String(text).indexOf("[object") === 0) return "";
-        return trimStr(String(text));
+        var s = trimStr(String(text));
+        if (s.length === 0 || s.toLowerCase() === "undefined" || s.toLowerCase() === "null") return "";
+        return s;
     } catch (e) {
         return "";
     }
+}
+
+/**
+ * Get path/URL from 00_Template layer Source Text, with fallback to data comp for current row.
+ * Use when expression-driven Source Text sometimes evaluates empty (e.g. "losing connection").
+ * Layer name typically matches the data column name (e.g. "LogoHome").
+ * @param {CompItem} templateComp - 00_Template comp
+ * @param {string} layerName - Layer name in that comp
+ * @returns {string} Trimmed value or ""
+ */
+function getPathFromTemplateLayerSourceTextWithDataFallback(templateComp, layerName) {
+    var fromLayer = getPathFromTemplateLayerSourceText(templateComp, layerName);
+    if (fromLayer && fromLayer.length > 0) return fromLayer;
+    try {
+        var row = getSelectorRow();
+        var fromData = getExportLabelForRow(layerName, row);
+        if (!fromData || fromData === "row") return "";
+        var s = trimStr(String(fromData));
+        if (s.length === 0 || s.toLowerCase() === "undefined" || s.toLowerCase() === "null") return "";
+        return s;
+    } catch (e) {}
+    return "";
 }
 
 /**
@@ -843,7 +962,10 @@ function readCSVCell(footage, colIndex1Based, rowIndex0Based) {
     for (var t = 0; t < tried.length; t++) {
         try {
             var v = footage.dataValue(tried[t]);
-            if (v != null && String(v).indexOf("[object") !== 0) return trimStr(String(v));
+            if (v == null || (typeof v !== "string" && typeof v !== "number")) continue;
+            var s = trimStr(String(v));
+            if (s.indexOf("[object") === 0 || s.toLowerCase() === "undefined" || s.toLowerCase() === "null") continue;
+            return s;
         } catch (e) {}
     }
     return "";
@@ -858,12 +980,12 @@ function readCSVCell(footage, colIndex1Based, rowIndex0Based) {
  */
 function getCSVColumnIndexByName(footage, fieldName) {
     if (!footage || !fieldName || typeof footage.dataValue !== "function") return 0;
-    var norm = trimStr(String(fieldName));
+    var norm = trimStr(String(fieldName)).toLowerCase();
     for (var col = 0; col < 200; col++) {
         try {
             var v = footage.dataValue([col, 0]);
             if (v == null) break;
-            if (trimStr(String(v)) === norm) return col + 1;
+            if (trimStr(String(v)).toLowerCase() === norm) return col + 1;
         } catch (e) {
             break;
         }
@@ -872,7 +994,7 @@ function getCSVColumnIndexByName(footage, fieldName) {
         for (var col = 0; col < 200; col++) {
             var v = footage.dataValue([0, col]);
             if (v == null) break;
-            if (trimStr(String(v)) === norm) return col + 1;
+            if (trimStr(String(v)).toLowerCase() === norm) return col + 1;
         }
     } catch (e2) {}
     return 0;
@@ -880,11 +1002,13 @@ function getCSVColumnIndexByName(footage, fieldName) {
 
 /**
  * Replace images based on current data row. Optionally map each folder slot to a CSV column (file path).
+ * When a layer's Source Text is a URL, the panel can download it and pass local paths via overridePathsStr.
  * @param {string} [mappingStr] - Pipe-separated 00_Template layer names; each layer's Source Text is used as file path or URL. Empty entry = skip that slot.
  * @param {string} [notFoundPathFromPanel] - Optional full path to img/notFound.jpg from panel (use when JSX extension path differs).
+ * @param {string} [overridePathsStr] - Optional pipe-separated local file paths; one per slot. If non-empty for a slot, use instead of layer Source Text (for panel-downloaded URLs).
  * @returns {string} "OK:n" (n = count replaced) or "ERROR: message"
  */
-function replaceimageJSX(mappingStr, notFoundPathFromPanel) {
+function replaceimageJSX(mappingStr, notFoundPathFromPanel, overridePathsStr) {
     try {
         findAll();
         if (imagesFolder === null) {
@@ -898,6 +1022,12 @@ function replaceimageJSX(mappingStr, notFoundPathFromPanel) {
             return "ERROR: 00_Template comp not found or has no layers. Run Fresh Batch Setup.";
         }
         var mapping = (mappingStr && mappingStr.length) ? mappingStr.split("|") : [];
+        var overrides = [];
+        if (overridePathsStr && overridePathsStr.length > 0) {
+            overrides = overridePathsStr.indexOf("||SLOT||") >= 0
+                ? overridePathsStr.split("||SLOT||")
+                : overridePathsStr.split("|");
+        }
         var notFoundPath = "";
         if (notFoundPathFromPanel && trimStr(String(notFoundPathFromPanel)).length > 0) {
             notFoundPath = trimStr(String(notFoundPathFromPanel));
@@ -924,22 +1054,52 @@ function replaceimageJSX(mappingStr, notFoundPathFromPanel) {
             var layerName = (mapping[i - 1] != null) ? trimStr(String(mapping[i - 1])) : "";
             var filePath = "";
             var slotWhy = "";
-            if (layerName) {
-                filePath = getPathFromTemplateLayerSourceText(templateCompFound, layerName);
+            if (overrides[i - 1] != null && trimStr(String(overrides[i - 1])).length > 0) {
+                filePath = trimStr(String(overrides[i - 1]));
+                if (filePath.indexOf("http://") === 0 || filePath.indexOf("https://") === 0) {
+                    filePath = "";
+                    slotWhy = "override was URL (use downloaded path or notFound)";
+                } else if (osCheck() === "PC") {
+                    filePath = filePath.replace(/\//g, "\\");
+                }
+            }
+            if (!filePath && layerName) {
+                filePath = getPathFromTemplateLayerSourceTextWithDataFallback(templateCompFound, layerName);
                 if (!filePath) slotWhy = "layer \"" + layerName + "\" has no Source Text or it is empty in 00_Template";
-            } else {
+            } else if (!filePath) {
                 slotWhy = "no mapping (select a 00_Template layer whose Source Text is the file path or URL)";
             }
-            var file = File(filePath);
-            if (!file.exists && notFoundFile.exists) file = notFoundFile;
+            if (filePath && (filePath.indexOf("http://") === 0 || filePath.indexOf("https://") === 0)) {
+                filePath = "";
+                if (!slotWhy) slotWhy = "layer Source Text is URL (download first or use path)";
+            }
+            var file;
+            if (!filePath || filePath.length === 0) {
+                file = notFoundFile;
+            } else {
+                file = File(filePath);
+                if (!file.exists && notFoundFile.exists) file = notFoundFile;
+            }
             if (file.exists) {
                 try {
                     imagesFolder.item(i).replace(file);
                     replaced++;
                     report.push("Slot " + i + " (" + slotName + "): " + (layerName || "—") + " -> replaced");
                 } catch (e) {
-                    infoWrite("Replace failed for slot " + i + ": " + e.toString());
-                    return "ERROR: Could not replace slot " + i + " (" + slotName + "): " + e.toString();
+                    var errStr = e.toString();
+                    if (errStr.indexOf("bad header") >= 0 && notFoundFile.exists && file.fsName !== notFoundFile.fsName) {
+                        try {
+                            imagesFolder.item(i).replace(notFoundFile);
+                            replaced++;
+                            report.push("Slot " + i + " (" + slotName + "): invalid image, used placeholder");
+                        } catch (e2) {
+                            infoWrite("Replace failed for slot " + i + ": " + errStr);
+                            return "ERROR: Could not replace slot " + i + " (" + slotName + "): " + errStr;
+                        }
+                    } else {
+                        infoWrite("Replace failed for slot " + i + ": " + errStr);
+                        return "ERROR: Could not replace slot " + i + " (" + slotName + "): " + errStr;
+                    }
                 }
             } else {
                 if (filePath) {
@@ -983,7 +1143,7 @@ function getImageReplacePreviewJSX(mappingStr) {
             var filePath = "";
             var status = "";
             if (layerName) {
-                filePath = getPathFromTemplateLayerSourceText(templateCompFound, layerName);
+                filePath = getPathFromTemplateLayerSourceTextWithDataFallback(templateCompFound, layerName);
                 if (!filePath) status = "— Layer \"" + layerName + "\" has no or empty Source Text";
             } else {
                 status = "— No mapping";
@@ -1301,10 +1461,10 @@ function addtoRenderQueue(batchRender, outputTemplateName, exportFolderPath) {
         var slider = sliderLayer.property("Effects")("Slider Control")("Slider");
         var rowNumber = Math.round(slider.value);
 
-        // Export filename label: from 00_Template layer 1 Source Text, or from selected data column value
+        // Export filename label: from selected 00_Template text layer, or layer 1 if none selected
         var dataCompLabelRaw = "row";
-        if (_batchLabelSource === "column" && _batchLabelColumn && _batchLabelColumn.length > 0) {
-            dataCompLabelRaw = getExportLabelForRow(_batchLabelColumn, rowNumber);
+        if (_batchLabelLayer && _batchLabelLayer.length > 0) {
+            dataCompLabelRaw = getExportLabelFromTemplateLayerByName(compTemplateFound, _batchLabelLayer);
         } else {
             dataCompLabelRaw = getExportLabelFromTemplateLayer(compTemplateFound);
         }
@@ -1504,38 +1664,52 @@ function getImageReplaceOptions() {
     }
 }
 
-// ============================================================================
-// GOOGLE SHEETS INTEGRATION
-// ============================================================================
-
 /**
- * Import data from Google Sheets
- * @param {string} sheetId - Google Sheet ID
- * @param {string} sheetName - Name of the sheet tab
- * @returns {string} Success or error message
- * @note This is a placeholder - needs OAuth implementation
+ * Import a single image file from a local path into the 01_Images folder.
+ * Used when the panel has downloaded an image from a URL to the project folder.
+ * If localFilePath is the extension folder path, reads the actual path from temp_import_path.txt there (avoids long path in evalScript).
+ * Otherwise treats localFilePath as the image path. Accepts paths with forward or backslashes.
+ * @param {string} localFilePath - Extension path (to read temp file) or full path to the image file on disk
+ * @returns {string} "OK:itemName" or "ERROR: message"
  */
-function importGoogleSheet(sheetId, sheetName) {
+function importImageFromPathTo01Images(localFilePath) {
     try {
-        // Validate inputs
-        if (!sheetId || sheetId.length < 10) {
-            infoWrite("Error: Invalid Sheet ID");
-            return "Error: Invalid Sheet ID";
+        if (localFilePath == null || localFilePath === undefined) return "ERROR: No path provided.";
+        var path = trimStr(String(localFilePath));
+        if (!path || path.length === 0) return "ERROR: No path provided.";
+        var tempPathFile = new File(path + "/temp_import_path.txt");
+        if (tempPathFile.exists) {
+            tempPathFile.open("r");
+            path = trimStr(tempPathFile.read());
+            tempPathFile.close();
+            if (!path || path.length === 0) return "ERROR: Temp path file was empty.";
         }
-
-        if (!sheetName || sheetName.length === 0) {
-            infoWrite("Error: Sheet Name is required");
-            return "Error: Sheet Name is required";
+        var findAllErr = null;
+        try { findAll(); } catch (e) { findAllErr = (e && e.toString()) ? e.toString() : "findAll failed"; }
+        if (findAllErr) return "ERROR: " + findAllErr;
+        if (imagesFolder === null) {
+            return "ERROR: 01_Images folder not found. Run Fresh Batch Setup.";
         }
-
-        // This function needs to be implemented with proper Google Sheets API integration
-        // For now, it returns an error message
-        infoWrite("Google Sheets import not yet fully implemented. Please use CSV import instead.");
-        return "Error: Google Sheets import requires OAuth setup";
-    } catch (error) {
-        infoWrite("Error in importGoogleSheet: " + error.toString());
-        return "Error: " + error.toString();
+        if (osCheck() === "PC") path = path.replace(/\//g, "\\");
+        var file = new File(path);
+        if (!file.exists) {
+            var pathAlt = path.replace(/\\/g, "/");
+            file = new File(pathAlt);
+        }
+        if (!file.exists) {
+            return "ERROR: File not found. Path: " + path.substring(0, 80) + (path.length > 80 ? "..." : "");
+        }
+        var importOpts = new ImportOptions();
+        importOpts.file = file;
+        var item = app.project.importFile(importOpts);
+        if (item === null) return "ERROR: Could not import file (AE importFile returned null).";
+        item.parentFolder = imagesFolder;
+        infoWrite("Imported to 01_Images: " + item.name);
+        return "OK:" + item.name;
+    } catch (e) {
+        var errStr = (e && e.toString()) ? e.toString() : "Unknown error";
+        infoWrite("Error in importImageFromPathTo01Images: " + errStr);
+        return "ERROR: " + errStr;
     }
 }
-
 

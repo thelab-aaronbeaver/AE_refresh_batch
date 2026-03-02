@@ -16,6 +16,19 @@ A batch processing extension for Adobe After Effects that enables automated data
 - Windows or macOS
 - Node.js (for Google Sheets integration - optional)
 
+## Required: After Effects scripting preferences
+
+**Before using the extension**, enable scripting in After Effects or setup will fail (folders may be created but no compositions):
+
+1. **Edit > Preferences > General** (Windows) or **After Effects > Preferences > General** (macOS)
+   - Check **Allow Scripts to Write Files and Access Network**
+
+2. **Edit > Preferences > Scripting & Expressions** (or **Preferences > Scripting & Expressions**)
+   - Check **Allow Scripts to Write Files and Access Network**
+   - Optionally: **Enable JavaScript Debugger**, **Warn User When Executing Files**, **Show Scripting Progress Dialog** (helpful for debugging)
+
+If "Fresh Batch Setup" creates folders but no comps, or scripts seem blocked, enable these and restart AE.
+
 ## Installation
 
 1. Copy the extension folder to your CEP extensions directory:
@@ -109,6 +122,12 @@ Refresh Extension/
 - Check that the extension is in the correct CEP extensions folder
 - Ensure unsigned extensions are enabled
 - Restart After Effects
+
+### Folders Created But No Compositions
+- **Enable scripting preferences** (see "Required: After Effects scripting preferences" above):
+  - **Edit > Preferences > General** — check **Allow Scripts to Write Files and Access Network**
+  - **Edit > Preferences > Scripting & Expressions** — check **Allow Scripts to Write Files and Access Network** (and other scripting options if you like)
+- Restart After Effects, remove the partial "reFresh Batch Setup" folder from the project, then run **Fresh Batch Setup** again
 
 ### Data Not Importing
 - Verify CSV file format (comma-separated)

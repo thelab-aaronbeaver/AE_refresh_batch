@@ -10,10 +10,25 @@ const FolderManager = {
     createFolderStructure: function () {
         showLoading(true, "Creating folder structure...");
         const csInterface = createCSInterface();
-        csInterface.evalScript('createFolder()', function(result) {
+        var extensionPath = "";
+        try {
+            if (typeof SystemPath !== "undefined" && SystemPath.EXTENSION && typeof csInterface.getSystemPath === "function") {
+                extensionPath = csInterface.getSystemPath(SystemPath.EXTENSION) || "";
+            }
+        } catch (e) {}
+        var esc = function (s) {
+            return String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r/g, "").replace(/\n/g, "");
+        };
+        var script = extensionPath.length > 0 ? ('createFolder("' + esc(extensionPath) + '")') : "createFolder()";
+        csInterface.evalScript(script, function(result) {
             showLoading(false);
-            if (result) {
-                showMessage("Folder structure created successfully", false);
+            var scriptTip = " If setup failed: Edit > Preferences > General — enable \"Allow Scripts to Write Files and Access Network\"; then Preferences > Scripting & Expressions — enable the same. Restart AE.";
+            if (result && String(result).indexOf("ERROR:") === 0) {
+                showMessage(String(result) + scriptTip, true);
+            } else if (result === "OK" || result === true) {
+                showMessage("Folder structure and compositions created successfully.", false);
+            } else {
+                showMessage("Setup finished. Check the project and AE Info panel for details." + scriptTip, false);
             }
         });
     },

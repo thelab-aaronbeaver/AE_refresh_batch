@@ -42,6 +42,7 @@ const Config = {
         importPanel: "importPanel",
 		imageReplaceList: "imageReplaceList",
 		imageReplaceMappingList: "imageReplaceMappingList",
+		imageImportUrlInput: "imageImportUrlInput",
         mySheetResults: "mySheetResults",
         myError: "myError",
         outputModuleSelect: "outputModuleSelect",
@@ -50,7 +51,6 @@ const Config = {
 		jsonUrlInput: "jsonUrlInput",
 		dataFieldQuickAdd: "dataFieldQuickAdd",
 		exportFilenamePreview: "exportFilenamePreview",
-		exportLabelSource: "exportLabelSource",
 		exportLabelColumn: "exportLabelColumn"
     },
 

@@ -30,9 +30,9 @@ header {
 	background-color: #f0f0f0;
 	border-bottom: 2px solid #ffc300;
 	color: #003566;
-	height: 40px;
+	height: 36px;
 	justify-content: space-between;
-	padding: 0 29px;
+	padding: 0 12px;
 	-webkit-user-select: none;
 	user-select: none;
 }
@@ -142,16 +142,16 @@ F::-webkit-scrollbar-button {
 
 
 .panel-nav {
-	padding: 10px 0;
+	padding: 6px 0;
 	background-color: #f0f0f0;
 	border: 1px solid #ccc;
-	font-size: 26px;
+	font-size: 20px;
 	display: flex;
 	justify-content: flex-end;
 }
 
 .panel-container {
-	padding: 20px;
+	padding: 12px;
 	background-color: #f0f0f0;
 	border: 1px solid #ccc;
 }
@@ -162,13 +162,13 @@ F::-webkit-scrollbar-button {
 	color: #eee;
 	font-size: 12px;
 	font-family: Tahoma;
-	padding: 1em;
+	padding: 8px;
 }
 
 .container {
 	width: 500px;
 	margin: 0 auto;
-	padding: 20px;
+	padding: 12px;
 	background-color: #333;
 	border-radius: 5px;
 }
@@ -177,7 +177,7 @@ F::-webkit-scrollbar-button {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	margin-bottom: 10px;
+	margin-bottom: 6px;
 	margin-left: 0;
 }
 
@@ -200,24 +200,25 @@ button {
 	background-color: #555;
 	color: #eee;
 	border: none;
-	padding: 8px 12px;
+	padding: 5px 8px;
 	border-radius: 3px;
 	cursor: pointer;
 }
 
 .button-adj {
-	margin: 0 10px;
+	margin: 0 4px;
 }
 
 .buttonblue {
 	background-color: #003566;
-	border-radius: 6px;
+	border-radius: 4px;
 	border: 1px solid #001d3d;
 	display: inline-block;
 	cursor: pointer;
 	color: #ffc300;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
+	padding: 5px 10px;
 	text-decoration: none;
 
 }
@@ -236,14 +237,14 @@ button {
 
 .buttonyellow {
 	background-color: #ffd60a;
-	border-radius: 6px;
+	border-radius: 4px;
 	border: 1px solid #ffc300;
 	display: inline-block;
 	cursor: pointer;
 	color: #000814;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
-	padding: 8px 20px;
+	padding: 5px 12px;
 	text-decoration: none;
 
 }
@@ -252,7 +253,7 @@ button {
 .import-buttons {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 12px;
+	gap: 6px;
 	align-items: flex-end;
 }
 
@@ -260,8 +261,8 @@ button {
 	display: inline-flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 4px;
-	padding: 8px 14px;
+	gap: 2px;
+	padding: 5px 10px;
 }
 
 .import-btn .icon {
@@ -295,7 +296,7 @@ button {
 /* Primary actions: Render current row, Batch Render */
 .button-primary {
 	font-weight: 700;
-	padding: 10px 18px;
+	padding: 5px 12px;
 	font-size: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
@@ -324,8 +325,8 @@ li:hover {
 
 
 .icon {
-	font-size: 26px;
-	padding: 6px;
+	font-size: 18px;
+	padding: 4px;
 }
 
 
@@ -336,7 +337,7 @@ li:hover {
 }
 
 .radio-group label {
-	margin-right: 15px;
+	margin-right: 8px;
 }
 
 .panel-row {
@@ -349,16 +350,16 @@ li:hover {
 }
 
 .panel-row-element {
-	padding: 0 8px 0 0;
+	padding: 0 6px 0 0;
 }
 
 /* Compact panels and section titles */
 .panel-container {
-	padding: 8px 12px;
-	margin-bottom: 6px;
+	padding: 6px 10px;
+	margin-bottom: 4px;
 }
 .section-title {
-	margin: 0 0 6px 0;
+	margin: 0 0 4px 0;
 	font-size: 10px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -370,10 +371,10 @@ li:hover {
 .panel-data-section .data-section-grid {
 	display: flex;
 	align-items: stretch;
-	gap: 14px;
+	gap: 10px;
 }
 .panel-data-section .data-row-box {
-	min-width: 110px;
+	min-width: 100px;
 }
 .panel-data-section .data-fields-box {
 	flex: 1;
@@ -388,28 +389,28 @@ li:hover {
 	font-size: 12px;
 	font-weight: 600;
 	color: #333;
-	margin-bottom: 8px;
+	margin-bottom: 5px;
 }
 .panel-data-section .data-fields-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 8px;
-	margin-bottom: 8px;
+	gap: 6px;
+	margin-bottom: 5px;
 }
 .panel-data-section .data-row-value {
 	width: 3.2em;
 	text-align: center;
-	padding: 6px 2px;
+	padding: 4px 2px;
 }
 .panel-data-section .data-row-buttons {
 	display: flex;
-	gap: 10px;
-	margin-top: 10px;
+	gap: 6px;
+	margin-top: 6px;
 }
 .panel-data-section .data-row-btn {
-	width: 44px;
-	height: 36px;
+	width: 36px;
+	height: 28px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -424,10 +425,10 @@ li:hover {
 }
 .panel-data-section .data-field-quick-add {
 	margin-top: 0;
-	gap: 8px;
+	gap: 6px;
 }
 .image-replace-header {
-	margin-bottom: 6px;
+	margin-bottom: 4px;
 }
 .image-replace-header .panel-row-element {
 	flex: 1;
@@ -437,14 +438,14 @@ li:hover {
 	font-size: 12px;
 }
 .export-options-panel .export-row {
-	margin-bottom: 4px;
+	margin-bottom: 3px;
 }
 .export-options-panel .export-row:last-of-type {
 	margin-bottom: 0;
 }
 .panel-render-buttons {
-	padding-top: 6px;
-	margin-bottom: 8px;
+	padding-top: 4px;
+	margin-bottom: 4px;
 }
 
 
@@ -513,7 +514,7 @@ li:hover {
 }
 
 .data-preview-results .preview-summary {
-	margin-bottom: 8px;
+	margin-bottom: 5px;
 	color: #003566;
 	font-weight: bold;
 }
@@ -527,7 +528,7 @@ li:hover {
 .data-preview-results .preview-table th,
 .data-preview-results .preview-table td {
 	border: 1px solid #ccc;
-	padding: 4px 6px;
+	padding: 3px 5px;
 	text-align: left;
 }
 
@@ -581,8 +582,8 @@ li:hover {
 
 /* Status / message area (success text in mySheetResults) */
 #mySheetResults {
-	min-height: 24px;
-	padding: 8px 0;
+	min-height: 20px;
+	padding: 6px 0;
 	font-size: 12px;
 	line-height: 1.4;
 }
@@ -613,7 +614,7 @@ li:hover {
 
 .data-field-quick-add .button-quick-add {
 	font-size: 10px;
-	padding: 5px 10px;
+	padding: 4px 8px;
 	white-space: nowrap;
 	max-width: 140px;
 	overflow: hidden;
@@ -694,7 +695,7 @@ li:hover {
 
 .custom-table thead th {
 	margin: 0;
-	padding: 4px 8px;
+	padding: 3px 6px;
 	background: #003566;
 	color: #ffc300;
 	border-radius: 4px;
@@ -706,8 +707,8 @@ li:hover {
 .loading-indicator {
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	padding: 10px;
+	gap: 6px;
+	padding: 6px;
 	color: #ffc300;
 	font-size: 12px;
 }
@@ -733,22 +734,22 @@ li:hover {
 
 /* Error Container */
 .error-container {
-	padding: 10px;
+	padding: 6px;
 	border-radius: 4px;
-	min-height: 20px;
+	min-height: 18px;
 }
 
 .error-container:not(:empty) {
 	background-color: #ffe6e6;
 	border-left: 4px solid #ff6b6b;
-	padding: 12px;
-	margin: 10px 0;
+	padding: 8px;
+	margin: 6px 0;
 }
 
 .error-container strong {
 	color: #d63031;
 	display: block;
-	margin-bottom: 5px;
+	margin-bottom: 3px;
 }
 
 .error-container em {
@@ -904,7 +905,7 @@ li:hover {
 }
 
 .stat-label {
-	font-size: 8px;
+	font-size: 10px;
 	color: #666;
 	text-transform: uppercase;
 	margin-bottom: 5px;
@@ -996,7 +997,7 @@ button.processing::after {
 
 /* Keyboard Shortcut Hint */
 .keyboard-hint {
-	font-size: 8px;
+	font-size: 10px;
 	color: #999;
 	margin-left: 5px;
 }
